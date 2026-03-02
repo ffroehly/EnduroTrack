@@ -47,11 +47,20 @@
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
+/* Begin PBXBuildFile section */
+		AA110010AA110010AA110010 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = AA110002AA110002AA110002 /* ComposableArchitecture */; };
+		AA110011AA110011AA110011 /* Domain in Frameworks */ = {isa = PBXBuildFile; productRef = AA110004AA110004AA110004 /* Domain */; };
+		AA110012AA110012AA110012 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = AA110006AA110006AA110006 /* DesignSystem */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		1BCD4D482F55ECC60074A67C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA110010AA110010AA110010 /* ComposableArchitecture in Frameworks */,
+				AA110011AA110011AA110011 /* Domain in Frameworks */,
+				AA110012AA110012AA110012 /* DesignSystem in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +121,9 @@
 			);
 			name = EnduroTrack;
 			packageProductDependencies = (
+				AA110002AA110002AA110002 /* ComposableArchitecture */,
+				AA110004AA110004AA110004 /* Domain */,
+				AA110006AA110006AA110006 /* DesignSystem */,
 			);
 			productName = EnduroTrack;
 			productReference = 1BCD4D4B2F55ECC60074A67C /* EnduroTrack.app */;
@@ -195,6 +207,13 @@
 			);
 			mainGroup = 1BCD4D422F55ECC60074A67C;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				AA110003AA110003AA110003 /* XCLocalSwiftPackageReference "Domain" */,
+				AA110005AA110005AA110005 /* XCLocalSwiftPackageReference "DesignSystem" */,
+			);
+			packages = (
+				AA110001AA110001AA110001 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1BCD4D4C2F55ECC60074A67C /* Products */;
 			projectDirPath = "";
@@ -578,6 +597,46 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		AA110003AA110003AA110003 /* XCLocalSwiftPackageReference "Domain" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Domain;
+		};
+		AA110005AA110005AA110005 /* XCLocalSwiftPackageReference "DesignSystem" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = DesignSystem;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AA110001AA110001AA110001 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AA110002AA110002AA110002 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA110001AA110001AA110001 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		AA110004AA110004AA110004 /* Domain */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA110003AA110003AA110003 /* XCLocalSwiftPackageReference "Domain" */;
+			productName = Domain;
+		};
+		AA110006AA110006AA110006 /* DesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA110005AA110005AA110005 /* XCLocalSwiftPackageReference "DesignSystem" */;
+			productName = DesignSystem;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1BCD4D432F55ECC60074A67C /* Project object */;
 }
