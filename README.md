@@ -107,8 +107,7 @@ EnduroTrack/                         ← Git repository root
     │   ├── SharedModels/            ← Enums / types shared across features
     │   │   └── SharedEnums.swift
     │   │
-    │   └── Config/
-    │       └── AgentConfig.swift    ← Feature flags, API URLs, AI commands
+    │   └── Config/                  ← Reserved for future app config files
     │
     ├── Domain/                      ← Local Swift Package (pure business logic)
     │   └── Sources/Domain/
@@ -447,3 +446,4 @@ Follow this checklist every time you add a new screen or capability:
 | Date | Change | Author |
 |---|---|---|
 | 2026-03-02 | Initial project scaffold – Clean Architecture + TCA skeleton, Domain & DesignSystem local packages, TCA remote package | Agent |
+| 2026-03-02 | Added `AGENTS.md` (AI coding-assistant configuration); added `Package.resolved` to pin SPM dependencies; removed placeholder `AgentConfig.swift` | Agent |
