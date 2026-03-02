@@ -54,7 +54,14 @@ track running sessions, and review their training history.
 
 2. **Resolve Swift Packages**
 
-   In Xcode: **File → Packages → Resolve Package Versions**
+   **With the command line** (no Xcode needed):
+
+   ```bash
+   cd EnduroTrack
+   swift package resolve
+   ```
+
+   **Or inside Xcode:** **File → Packages → Resolve Package Versions**
 
    This downloads:
    - **TCA** (`swift-composable-architecture`) – remote package from GitHub
@@ -66,8 +73,8 @@ track running sessions, and review their training history.
    Select the `EnduroTrack` scheme and press ⌘R.
 
 > **Note:** The skeleton files import `ComposableArchitecture`, `Domain`, and
-> `DesignSystem`. These imports will show errors until package resolution
-> completes. Always resolve packages before building.
+> `DesignSystem`. Run `swift package resolve` (or Xcode's equivalent) before
+> building so that all packages are downloaded and linked.
 
 ---
 
@@ -76,6 +83,7 @@ track running sessions, and review their training history.
 ```
 EnduroTrack/                         ← Git repository root
 └── EnduroTrack/                     ← Xcode project directory
+    ├── Package.swift                ← Root SPM manifest (TCA + local packages)
     ├── EnduroTrack.xcodeproj/
     │
     ├── EnduroTrack/                 ← App target (auto-synced by Xcode)
@@ -447,3 +455,4 @@ Follow this checklist every time you add a new screen or capability:
 |---|---|---|
 | 2026-03-02 | Initial project scaffold – Clean Architecture + TCA skeleton, Domain & DesignSystem local packages, TCA remote package | Agent |
 | 2026-03-02 | Added `AGENTS.md` (AI coding-assistant configuration); added `Package.resolved` to pin SPM dependencies; removed placeholder `AgentConfig.swift` | Agent |
+| 2026-03-02 | Added root `Package.swift` – main project now buildable/testable with plain `swift` tooling without Xcode | Agent |

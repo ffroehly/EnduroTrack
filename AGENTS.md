@@ -76,15 +76,23 @@ When asked to scaffold a new feature, follow this order:
 
 ## Swift Package Manager
 
-Dependencies are declared in `EnduroTrack.xcodeproj` and pinned in:
+Dependencies are declared in `Package.swift` (root SPM manifest, next to `EnduroTrack.xcodeproj`) and pinned in:
 
 ```
 EnduroTrack.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 ```
 
+To resolve all packages from the command line:
+
+```bash
+swift package resolve
+```
+
 To add a new remote dependency:
-1. In Xcode: **File → Add Package Dependencies…**
-2. Commit the updated `Package.resolved`.
+1. Add it to `Package.swift` under `dependencies:` and to the relevant target's `dependencies:`
+2. Run `swift package resolve` to fetch it
+3. In Xcode, also add it via **File → Add Package Dependencies…** so that `project.pbxproj` stays in sync
+4. Commit the updated `Package.swift`, `Package.resolved`, and `project.pbxproj`.
 
 Current dependencies:
 
