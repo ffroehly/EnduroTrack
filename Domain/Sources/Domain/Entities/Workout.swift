@@ -18,7 +18,7 @@ public struct Workout: Identifiable, Equatable, Hashable, Sendable {
     public let startedAt: Date
     public let finishedAt: Date?
     public let durationSeconds: Int
-    public let exercises: [Exercise]
+    public let exercises: [WorkoutExercise]
 
     public init(
         id: UUID = UUID(),
@@ -28,7 +28,7 @@ public struct Workout: Identifiable, Equatable, Hashable, Sendable {
         startedAt: Date,
         finishedAt: Date? = nil,
         durationSeconds: Int,
-        exercises: [Exercise] = []
+        exercises: [WorkoutExercise] = []
     ) {
         self.id = id
         self.title = title

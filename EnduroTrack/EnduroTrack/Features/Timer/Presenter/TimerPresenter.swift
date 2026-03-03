@@ -1,136 +1,77 @@
-// TimerPresenter.swift
-// EnduroTrack › Features › Timer › Presenter
-//
-// VIPER: Presenter layer for the Timer module.
-// Manages timer countdown logic using async/await and a countdown task.
+// TimerPresenter.swift (History feature)
+// EnduroTrack › Features › Timer (History)
 
 import Foundation
 import Domain
 import Combine
 
-/// Drives the Timer screen. Observed by TimerView.
 @MainActor
-final class TimerPresenter: ObservableObject, TimerPresenterProtocol {
+final class HistoryPresenter: ObservableObject, HistoryPresenterProtocol {
 
-    // MARK: - Published State
+    @Published private(set) var state: HistoryViewState = .loading
 
-    @Published private(set) var state: TimerViewState = .loading
+    private let interactor: HistoryInteractorProtocol
+    private let router: HistoryRouterProtocol
+    private var selectedMonth: Date = {
+        let calendar = Calendar.current
+        let comps = calendar.dateComponents([.year, .month], from: Date())
+        return calendar.date(from: comps) ?? Date()
+    }()
 
-    // MARK: - VIPER Dependencies
-
-    private let interactor: TimerInteractorProtocol
-    private let router: TimerRouterProtocol
-
-    // MARK: - Private Timer State
-
-    private var countdownTask: Task<Void, Never>?
-    private var currentSession: TimerSession?
-    private var currentIntervalIndex: Int = 0
-    private var remainingSeconds: Int = 0
-
-    // MARK: - Init
-
-    init(interactor: TimerInteractorProtocol, router: TimerRouterProtocol) {
+    init(interactor: HistoryInteractorProtocol, router: HistoryRouterProtocol) {
         self.interactor = interactor
         self.router = router
     }
 
-    // MARK: - TimerPresenterProtocol
-
     func viewDidAppear() async {
+        await loadSessions()
+    }
+
+    func didTapPreviousMonth() {
+        selectedMonth = Calendar.current.date(byAdding: .month, value: -1, to: selectedMonth) ?? selectedMonth
+        Task { await loadSessions() }
+    }
+
+    func didTapNextMonth() {
+        selectedMonth = Calendar.current.date(byAdding: .month, value: 1, to: selectedMonth) ?? selectedMonth
+        Task { await loadSessions() }
+    }
+
+    private func loadSessions() async {
         state = .loading
         do {
-            let presets = try await interactor.fetchTimerPresets()
-            state = .idle(presets: presets)
+            let allSessions = try await interactor.fetchAllSessions()
+            if allSessions.isEmpty {
+                state = .empty
+                return
+            }
+            let monthlySessions = sessions(for: selectedMonth, from: allSessions)
+            let summaries = dailySummaries(from: monthlySessions)
+            state = .loaded(sessions: allSessions, monthlySummaries: summaries, selectedMonth: selectedMonth)
         } catch {
             state = .error(message: error.localizedDescription)
         }
     }
 
-    func didSelectSession(_ session: TimerSession) {
-        currentSession = session
-    }
-
-    func didTapStartTimer(session: TimerSession) {
-        currentSession = session
-        currentIntervalIndex = 0
-        guard let firstInterval = session.intervals.first else { return }
-        remainingSeconds = firstInterval.durationSeconds
-        state = .running(
-            session: session,
-            remainingSeconds: remainingSeconds,
-            currentIntervalIndex: 0
-        )
-        startCountdown()
-    }
-
-    func didTapPauseTimer() {
-        countdownTask?.cancel()
-        countdownTask = nil
-        guard let session = currentSession else { return }
-        state = .paused(
-            session: session,
-            remainingSeconds: remainingSeconds,
-            currentIntervalIndex: currentIntervalIndex
-        )
-    }
-
-    func didTapResumeTimer() {
-        guard let session = currentSession else { return }
-        state = .running(
-            session: session,
-            remainingSeconds: remainingSeconds,
-            currentIntervalIndex: currentIntervalIndex
-        )
-        startCountdown()
-    }
-
-    func didTapStopTimer() {
-        countdownTask?.cancel()
-        countdownTask = nil
-        Task {
-            let presets = (try? await interactor.fetchTimerPresets()) ?? []
-            state = .idle(presets: presets)
+    private func sessions(for month: Date, from sessions: [ExerciseSession]) -> [ExerciseSession] {
+        let calendar = Calendar.current
+        return sessions.filter {
+            calendar.isDate($0.completedAt, equalTo: month, toGranularity: .month)
         }
     }
 
-    func didTapCreateNewTimer() {
-        router.navigateToCreateTimer()
-    }
-
-    // MARK: - Private Countdown Logic
-
-    private func startCountdown() {
-        countdownTask = Task { @MainActor [weak self] in
-            guard let self else { return }
-            while remainingSeconds > 0 {
-                try? await Task.sleep(nanoseconds: 1_000_000_000)
-                if Task.isCancelled { return }
-                remainingSeconds -= 1
-                guard let session = currentSession else { return }
-                state = .running(
-                    session: session,
-                    remainingSeconds: remainingSeconds,
-                    currentIntervalIndex: currentIntervalIndex
-                )
-            }
-            await advanceToNextInterval()
+    private func dailySummaries(from sessions: [ExerciseSession]) -> [DailySessionSummary] {
+        let calendar = Calendar.current
+        let grouped = Dictionary(grouping: sessions) {
+            calendar.startOfDay(for: $0.completedAt)
         }
-    }
-
-    private func advanceToNextInterval() async {
-        guard let session = currentSession else { return }
-        currentIntervalIndex += 1
-        if currentIntervalIndex < session.intervals.count {
-            remainingSeconds = session.intervals[currentIntervalIndex].durationSeconds
-            state = .running(
-                session: session,
-                remainingSeconds: remainingSeconds,
-                currentIntervalIndex: currentIntervalIndex
+        return grouped.map { (date, sessions) in
+            DailySessionSummary(
+                id: date,
+                date: date,
+                totalDurationMinutes: sessions.reduce(0) { $0 + $1.durationSeconds } / 60,
+                sessionCount: sessions.count
             )
-            startCountdown()
-        } else {
-            state = .finished(session: session)
-        }
+        }.sorted { $0.date < $1.date }
     }
 }

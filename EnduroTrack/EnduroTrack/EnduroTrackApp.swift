@@ -1,16 +1,7 @@
-//
-//  EnduroTrackApp.swift
-//  EnduroTrack
-//
-//  Created by Fabrice FROEHLY on 02/03/2026.
+// EnduroTrackApp.swift
+// EnduroTrack
 //
 // Application entry point and Composition Root.
-// Responsibilities:
-//  - Bootstrap the dependency graph (repositories, services, use cases).
-//  - Provide the root window via ContentView.
-//
-// This is the only file that instantiates concrete types.
-// All feature modules receive protocol abstractions, never concrete types directly.
 
 import SwiftUI
 import Domain
@@ -18,22 +9,22 @@ import Domain
 @main
 struct EnduroTrackApp: App {
 
-    // MARK: - Dependency Graph (Composition Root)
+    // MARK: - Repositories
 
-    // Repositories
-    private let workoutRepository: WorkoutRepositoryProtocol = WorkoutRepository()
-    private let runSessionRepository: RunSessionRepositoryProtocol = RunSessionRepository()
-    private let timerSessionRepository: TimerSessionRepositoryProtocol = TimerSessionRepository()
+    private let exerciseRepository: ExerciseRepositoryProtocol = ExerciseRepository()
+    private let scheduleRepository: ScheduleRepositoryProtocol = ScheduleRepository()
+    private let sessionRepository: ExerciseSessionRepositoryProtocol = ExerciseSessionRepository()
 
-    // Services (Use Case implementations)
-    private var workoutService: WorkoutService {
-        WorkoutService(repository: workoutRepository)
+    // MARK: - Services
+
+    private var exerciseService: ExerciseService {
+        ExerciseService(repository: exerciseRepository)
     }
-    private var runningService: RunningService {
-        RunningService(repository: runSessionRepository)
+    private var scheduleService: ScheduleService {
+        ScheduleService(repository: scheduleRepository)
     }
-    private var timerService: TimerService {
-        TimerService(repository: timerSessionRepository)
+    private var sessionService: ExerciseSessionService {
+        ExerciseSessionService(repository: sessionRepository)
     }
 
     // MARK: - Scene
@@ -41,14 +32,17 @@ struct EnduroTrackApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(
-                fetchWorkoutsUseCase: workoutService,
-                createWorkoutUseCase: workoutService,
-                updateWorkoutUseCase: workoutService,
-                saveRunSessionUseCase: runningService,
-                fetchRunSessionsUseCase: runningService,
-                fetchTimerSessionsUseCase: timerService
+                fetchExercisesUseCase: exerciseService,
+                createExerciseUseCase: exerciseService,
+                updateExerciseUseCase: exerciseService,
+                deleteExerciseUseCase: exerciseService,
+                fetchSchedulesUseCase: scheduleService,
+                createScheduleUseCase: scheduleService,
+                updateScheduleUseCase: scheduleService,
+                deleteScheduleUseCase: scheduleService,
+                fetchSessionsUseCase: sessionService,
+                saveSessionUseCase: sessionService
             )
         }
     }
 }
-

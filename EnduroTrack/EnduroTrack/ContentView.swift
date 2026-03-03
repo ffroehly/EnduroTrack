@@ -1,33 +1,30 @@
-//
-//  ContentView.swift
-//  EnduroTrack
-//
-//  Created by Fabrice FROEHLY on 02/03/2026.
+// ContentView.swift
+// EnduroTrack
 //
 // Root view of the application.
-// Provides a tab-based navigation structure across all features.
-// Each tab assembles its VIPER module via its Builder.
 
 import SwiftUI
 import Domain
 
-/// The root view. Hosts the main tab bar and wires up feature modules.
 struct ContentView: View {
 
-    // MARK: - Use Case Dependencies (injected from EnduroTrackApp)
+    // MARK: - Use Case Dependencies
 
-    let fetchWorkoutsUseCase: FetchWorkoutsUseCaseProtocol
-    let createWorkoutUseCase: CreateWorkoutUseCaseProtocol
-    let updateWorkoutUseCase: UpdateWorkoutUseCaseProtocol
-    let saveRunSessionUseCase: SaveRunSessionUseCaseProtocol
-    let fetchRunSessionsUseCase: FetchRunSessionsUseCaseProtocol
-    let fetchTimerSessionsUseCase: FetchTimerSessionsUseCaseProtocol
+    let fetchExercisesUseCase: FetchExercisesUseCaseProtocol
+    let createExerciseUseCase: CreateExerciseUseCaseProtocol
+    let updateExerciseUseCase: UpdateExerciseUseCaseProtocol
+    let deleteExerciseUseCase: DeleteExerciseUseCaseProtocol
+    let fetchSchedulesUseCase: FetchSchedulesUseCaseProtocol
+    let createScheduleUseCase: CreateScheduleUseCaseProtocol
+    let updateScheduleUseCase: UpdateScheduleUseCaseProtocol
+    let deleteScheduleUseCase: DeleteScheduleUseCaseProtocol
+    let fetchSessionsUseCase: FetchExerciseSessionsUseCaseProtocol
+    let saveSessionUseCase: SaveExerciseSessionUseCaseProtocol
 
     // MARK: - State
 
     @State private var selectedTab: AppTab = .home
-
-    // MARK: - Body
+    @AppStorage("colorScheme") private var colorSchemePreference: String = "system"
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -39,31 +36,51 @@ struct ContentView: View {
                     .tag(tab)
             }
         }
+        .preferredColorScheme(preferredColorScheme)
     }
 
-    // MARK: - Tab Builder
+    private var preferredColorScheme: ColorScheme? {
+        switch colorSchemePreference {
+        case "light": return .light
+        case "dark":  return .dark
+        default:      return nil
+        }
+    }
 
     @ViewBuilder
     private func tabView(for tab: AppTab) -> some View {
         switch tab {
         case .home:
-            HomeBuilder.build(fetchWorkoutsUseCase: fetchWorkoutsUseCase)
-
-        case .workout:
-            WorkoutBuilder.build(
-                createWorkoutUseCase: createWorkoutUseCase,
-                updateWorkoutUseCase: updateWorkoutUseCase
+            HomeBuilder.build(
+                fetchSchedulesUseCase: fetchSchedulesUseCase,
+                fetchExercisesUseCase: fetchExercisesUseCase,
+                fetchSessionsUseCase: fetchSessionsUseCase,
+                onNavigateToSchedule: { selectedTab = .schedule },
+                onNavigateToExercises: { selectedTab = .exercises }
             )
 
-        case .running:
-            RunningBuilder.build(
-                saveRunSessionUseCase: saveRunSessionUseCase,
-                fetchRunSessionsUseCase: fetchRunSessionsUseCase
+        case .exercises:
+            ExercisesBuilder.build(
+                fetchExercisesUseCase: fetchExercisesUseCase,
+                createExerciseUseCase: createExerciseUseCase,
+                updateExerciseUseCase: updateExerciseUseCase,
+                deleteExerciseUseCase: deleteExerciseUseCase,
+                saveSessionUseCase: saveSessionUseCase
             )
 
-        case .timer:
-            TimerBuilder.build(fetchTimerSessionsUseCase: fetchTimerSessionsUseCase)
+        case .schedule:
+            ScheduleBuilder.build(
+                fetchSchedulesUseCase: fetchSchedulesUseCase,
+                createScheduleUseCase: createScheduleUseCase,
+                updateScheduleUseCase: updateScheduleUseCase,
+                deleteScheduleUseCase: deleteScheduleUseCase,
+                fetchExercisesUseCase: fetchExercisesUseCase
+            )
+
+        case .history:
+            HistoryBuilder.build(
+                fetchSessionsUseCase: fetchSessionsUseCase
+            )
         }
     }
 }
-

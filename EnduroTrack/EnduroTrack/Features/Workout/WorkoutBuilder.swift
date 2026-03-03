@@ -1,25 +1,28 @@
-// WorkoutBuilder.swift
-// EnduroTrack › Features › Workout
-//
-// VIPER Builder — assembles the Workout module with injected dependencies.
+// WorkoutBuilder.swift (Exercises feature)
+// EnduroTrack › Features › Workout (Exercises)
 
 import SwiftUI
 import Domain
 
-/// Assembles and returns a fully wired Workout VIPER module.
-enum WorkoutBuilder {
+enum ExercisesBuilder {
 
     @MainActor
     static func build(
-        createWorkoutUseCase: CreateWorkoutUseCaseProtocol,
-        updateWorkoutUseCase: UpdateWorkoutUseCaseProtocol
+        fetchExercisesUseCase: FetchExercisesUseCaseProtocol,
+        createExerciseUseCase: CreateExerciseUseCaseProtocol,
+        updateExerciseUseCase: UpdateExerciseUseCaseProtocol,
+        deleteExerciseUseCase: DeleteExerciseUseCaseProtocol,
+        saveSessionUseCase: SaveExerciseSessionUseCaseProtocol
     ) -> some View {
-        let router = WorkoutRouter()
-        let interactor = WorkoutInteractor(
-            createWorkoutUseCase: createWorkoutUseCase,
-            updateWorkoutUseCase: updateWorkoutUseCase
+        let router = ExercisesRouter()
+        let interactor = ExercisesInteractor(
+            fetchExercisesUseCase: fetchExercisesUseCase,
+            createExerciseUseCase: createExerciseUseCase,
+            updateExerciseUseCase: updateExerciseUseCase,
+            deleteExerciseUseCase: deleteExerciseUseCase,
+            saveSessionUseCase: saveSessionUseCase
         )
-        let presenter = WorkoutPresenter(interactor: interactor, router: router)
-        return WorkoutView(presenter: presenter)
+        let presenter = ExercisesPresenter(interactor: interactor, router: router)
+        return ExercisesView(presenter: presenter)
     }
 }

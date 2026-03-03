@@ -1,167 +1,156 @@
-// TimerView.swift
-// EnduroTrack › Features › Timer › View
-//
-// VIPER: View layer for the Timer module.
+// TimerView.swift (History feature)
+// EnduroTrack › Features › Timer (History)
 
 import SwiftUI
+import Charts
 import Domain
 import DesignSystem
 
-/// The Timer screen — displays interval timer presets and an active timer.
-struct TimerView: View {
+struct HistoryView: View {
 
-    // MARK: - VIPER Wiring
+    @StateObject private var presenter: HistoryPresenter
 
-    @StateObject private var presenter: TimerPresenter
-
-    // MARK: - Init
-
-    init(presenter: TimerPresenter) {
+    init(presenter: HistoryPresenter) {
         _presenter = StateObject(wrappedValue: presenter)
     }
-
-    // MARK: - Body
 
     var body: some View {
         NavigationStack {
             content
-                .navigationTitle("Timer")
-                .toolbar {
-                    ToolbarItem(placement: .primaryAction) {
-                        Button {
-                            presenter.didTapCreateNewTimer()
-                        } label: {
-                            Image(systemName: "plus")
-                        }
-                    }
-                }
+                .navigationTitle("History")
+                .navigationBarTitleDisplayMode(.large)
         }
         .task {
             await presenter.viewDidAppear()
         }
     }
 
-    // MARK: - Content
-
     @ViewBuilder
     private var content: some View {
         switch presenter.state {
         case .loading:
-            ProgressView("Loading presets…")
+            ProgressView("Loading…")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-        case .idle(let presets):
-            presetsView(presets: presets)
+        case .loaded(let sessions, let summaries, let month):
+            loadedView(sessions: sessions, summaries: summaries, month: month)
 
-        case .running(let session, let remaining, let index):
-            activeTimerView(session: session, remainingSeconds: remaining, intervalIndex: index, isPaused: false)
-
-        case .paused(let session, let remaining, let index):
-            activeTimerView(session: session, remainingSeconds: remaining, intervalIndex: index, isPaused: true)
-
-        case .finished(let session):
-            finishedTimerView(session: session)
+        case .empty:
+            emptyView
 
         case .error(let message):
             errorView(message: message)
         }
     }
 
-    // MARK: - Sub-Views
+    private func loadedView(sessions: [ExerciseSession], summaries: [DailySessionSummary], month: Date) -> some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                // Month navigation header
+                monthNavigationView(month: month)
+                    .padding(.horizontal)
 
-    private func presetsView(presets: [TimerSession]) -> some View {
-        Group {
-            if presets.isEmpty {
-                VStack(spacing: 20) {
-                    Image(systemName: "timer")
-                        .font(.system(size: 64))
-                        .foregroundStyle(AppColors.primary)
-                    Text("No timer presets")
-                        .font(AppFonts.headlineLarge)
-                    Text("Tap + to create your first interval timer.")
+                // Monthly chart
+                if summaries.isEmpty {
+                    Text("No sessions this month")
                         .font(AppFonts.bodyMedium)
                         .foregroundStyle(AppColors.textSecondary)
-                        .multilineTextAlignment(.center)
-                    PrimaryButton(title: "Create Timer") {
-                        presenter.didTapCreateNewTimer()
+                        .frame(height: 150)
+                } else {
+                    monthlyChart(summaries: summaries, month: month)
+                        .padding(.horizontal)
+                }
+
+                Divider()
+
+                // Session list
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("All Sessions")
+                        .font(AppFonts.headlineLarge)
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
+
+                    ForEach(sessions) { session in
+                        SessionRowView(session: session)
+                        Divider().padding(.leading)
                     }
                 }
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 12) {
-                        ForEach(presets) { preset in
-                            Card {
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text(preset.name)
-                                        .font(AppFonts.headlineMedium)
-                                    Text("\(preset.intervals.count) intervals · ×\(preset.repeatCount)")
-                                        .font(AppFonts.bodyMedium)
-                                        .foregroundStyle(AppColors.textSecondary)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                            .onTapGesture {
-                                presenter.didTapStartTimer(session: preset)
-                            }
+            }
+            .padding(.vertical)
+        }
+    }
+
+    private func monthNavigationView(month: Date) -> some View {
+        HStack {
+            Button {
+                presenter.didTapPreviousMonth()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.title3.bold())
+            }
+            Spacer()
+            Text(monthTitle(month))
+                .font(AppFonts.headlineLarge)
+            Spacer()
+            Button {
+                presenter.didTapNextMonth()
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.title3.bold())
+            }
+        }
+    }
+
+    private func monthlyChart(summaries: [DailySessionSummary], month: Date) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Sessions this month")
+                .font(AppFonts.bodyMedium)
+                .foregroundStyle(AppColors.textSecondary)
+
+            Chart(summaries) { summary in
+                BarMark(
+                    x: .value("Day", summary.date, unit: .day),
+                    y: .value("Duration (min)", summary.totalDurationMinutes)
+                )
+                .foregroundStyle(AppColors.primary)
+                .cornerRadius(4)
+            }
+            .chartXAxis {
+                AxisMarks(values: .stride(by: .day, count: 7)) { value in
+                    if let date = value.as(Date.self) {
+                        AxisValueLabel {
+                            Text(dayLabel(date))
+                                .font(AppFonts.labelSmall)
                         }
                     }
-                    .padding()
+                    AxisGridLine()
                 }
             }
+            .chartYAxis {
+                AxisMarks { value in
+                    if let v = value.as(Int.self) {
+                        AxisValueLabel { Text("\(v)m") }
+                        AxisGridLine()
+                    }
+                }
+            }
+            .frame(height: 180)
         }
     }
 
-    private func activeTimerView(
-        session: TimerSession,
-        remainingSeconds: Int,
-        intervalIndex: Int,
-        isPaused: Bool
-    ) -> some View {
-        VStack(spacing: 32) {
-            if intervalIndex < session.intervals.count {
-                let interval = session.intervals[intervalIndex]
-                Text(interval.label ?? interval.type.rawValue.capitalized)
-                    .font(AppFonts.headlineLarge)
-                    .foregroundStyle(AppColors.primary)
-            }
-
-            Text(formattedTime(remainingSeconds))
-                .font(AppFonts.timerDisplay)
-                .foregroundStyle(AppColors.textPrimary)
-                .monospacedDigit()
-
-            HStack(spacing: 16) {
-                if isPaused {
-                    PrimaryButton(title: "Resume") {
-                        presenter.didTapResumeTimer()
-                    }
-                } else {
-                    PrimaryButton(title: "Pause", style: .outlined) {
-                        presenter.didTapPauseTimer()
-                    }
-                }
-                PrimaryButton(title: "Stop", style: .outlined) {
-                    presenter.didTapStopTimer()
-                }
-            }
+    private var emptyView: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "clock.arrow.circlepath")
+                .font(.system(size: 64))
+                .foregroundStyle(AppColors.primary)
+            Text("No history yet")
+                .font(AppFonts.headlineLarge)
+            Text("Complete an exercise to see your history here.")
+                .font(AppFonts.bodyMedium)
+                .foregroundStyle(AppColors.textSecondary)
+                .multilineTextAlignment(.center)
         }
         .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    private func finishedTimerView(session: TimerSession) -> some View {
-        VStack(spacing: 20) {
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 72))
-                .foregroundStyle(AppColors.success)
-            Text("Timer Complete!")
-                .font(AppFonts.displayMedium)
-            Text(session.name)
-                .font(AppFonts.bodyLarge)
-                .foregroundStyle(AppColors.textSecondary)
-        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
@@ -171,18 +160,54 @@ struct TimerView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(AppColors.error)
             Text(message)
-                .font(AppFonts.bodyLarge)
+                .font(AppFonts.bodyMedium)
                 .multilineTextAlignment(.center)
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    // MARK: - Helpers
+    private func monthTitle(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "MMMM yyyy"
+        return f.string(from: date)
+    }
 
-    private func formattedTime(_ seconds: Int) -> String {
-        let m = seconds / 60
-        let s = seconds % 60
-        return String(format: "%02d:%02d", m, s)
+    private func dayLabel(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "d"
+        return f.string(from: date)
+    }
+}
+
+// MARK: - SessionRowView
+
+struct SessionRowView: View {
+    let session: ExerciseSession
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(session.exerciseTitle)
+                    .font(AppFonts.headlineMedium)
+                    .foregroundStyle(AppColors.textPrimary)
+                Text(formattedDate(session.completedAt))
+                    .font(AppFonts.bodyMedium)
+                    .foregroundStyle(AppColors.textSecondary)
+            }
+            Spacer()
+            Text(FormattedDuration(totalSeconds: session.durationSeconds).longDisplay)
+                .font(AppFonts.bodyMedium)
+                .foregroundStyle(AppColors.textSecondary)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 10)
+    }
+
+    private func formattedDate(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.timeStyle = .short
+        return f.string(from: date)
     }
 }

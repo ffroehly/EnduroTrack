@@ -1,35 +1,8 @@
-// TimerRouter.swift
-// EnduroTrack › Features › Timer › Router
-//
-// VIPER: Router layer for the Timer module.
+// TimerRouter.swift (History feature)
+// EnduroTrack › Features › Timer (History)
 
 import SwiftUI
 import Domain
-import Combine
 
-/// Drives navigation from the Timer screen.
 @MainActor
-final class TimerRouter: TimerRouterProtocol, ObservableObject {
-
-    // MARK: - Navigation State
-
-    @Published var sheetDestination: TimerSheetDestination?
-
-    // MARK: - TimerRouterProtocol
-
-    func navigateToCreateTimer() {
-        sheetDestination = .createTimer
-    }
-}
-
-// MARK: - Destination Types
-
-enum TimerSheetDestination: Identifiable {
-    case createTimer
-
-    var id: String {
-        switch self {
-        case .createTimer: return "createTimer"
-        }
-    }
-}
+final class HistoryRouter: HistoryRouterProtocol, ObservableObject {}

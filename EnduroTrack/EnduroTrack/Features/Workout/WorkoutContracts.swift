@@ -1,51 +1,68 @@
-// WorkoutContracts.swift
-// EnduroTrack › Features › Workout
-//
-// VIPER contracts for the Workout module.
-// Defines all inter-layer communication protocols.
+// WorkoutContracts.swift (Exercises feature)
+// EnduroTrack › Features › Workout (Exercises)
 
 import Foundation
 import Domain
+import Combine
 
 // MARK: - View Protocol
 
 @MainActor
-protocol WorkoutViewProtocol: AnyObject {
-    func render(state: WorkoutViewState)
+protocol ExercisesViewProtocol: AnyObject {
+    func render(state: ExercisesViewState)
 }
 
 // MARK: - Presenter Protocol
 
 @MainActor
-protocol WorkoutPresenterProtocol: AnyObject {
+protocol ExercisesPresenterProtocol: AnyObject {
     func viewDidAppear() async
-    func didTapStartWorkout(title: String, type: WorkoutType)
-    func didSelectExercise(_ exercise: Exercise)
-    func didTapFinishWorkout()
+    func didTapCreateExercise()
+    func didTapDeleteExercise(id: UUID)
+    func didTapEditExercise(_ exercise: Exercise)
+    func didTapStartExercise(_ exercise: Exercise)
+    func didSaveNewExercise(title: String, warmupSeconds: Int, activeSeconds: Int, restSeconds: Int, repetitions: Int, recoverySeconds: Int?)
+    func didSaveEditedExercise(_ exercise: Exercise, title: String, warmupSeconds: Int, activeSeconds: Int, restSeconds: Int, repetitions: Int, recoverySeconds: Int?)
+    func didTapPauseTimer()
+    func didTapResumeTimer()
+    func didTapStopTimer()
 }
 
 // MARK: - Interactor Protocol
 
-protocol WorkoutInteractorProtocol: AnyObject {
-    func createWorkout(title: String, type: WorkoutType) async throws -> Workout
-    func updateWorkout(_ workout: Workout) async throws -> Workout
-    func finishWorkout(_ workout: Workout) async throws -> Workout
+protocol ExercisesInteractorProtocol: AnyObject {
+    func fetchExercises() async throws -> [Exercise]
+    func createExercise(title: String, warmupSeconds: Int, activeSeconds: Int, restSeconds: Int, repetitions: Int, recoverySeconds: Int?) async throws -> Exercise
+    func updateExercise(_ exercise: Exercise) async throws -> Exercise
+    func deleteExercise(id: UUID) async throws
+    func saveSession(_ session: ExerciseSession) async throws -> ExerciseSession
 }
 
 // MARK: - Router Protocol
 
 @MainActor
-protocol WorkoutRouterProtocol: AnyObject {
-    func navigateToExerciseDetail(_ exercise: Exercise)
-    func dismissWorkout()
+protocol ExercisesRouterProtocol: AnyObject {
+    // No external navigation needed for now
 }
 
 // MARK: - View State
 
-enum WorkoutViewState: Equatable {
-    case idle
+/// Phase of the timer when it's running.
+enum TimerPhase: Equatable {
+    case warmup
+    case active(rep: Int)
+    case rest(rep: Int)
+    case recovery
+}
+
+enum ExercisesViewState: Equatable {
     case loading
-    case active(workout: Workout)
-    case finished(workout: Workout)
+    case list(exercises: [Exercise])
+    case empty
+    case showingCreateForm
+    case showingEditForm(exercise: Exercise)
+    case timerRunning(exercise: Exercise, phase: TimerPhase, remainingSeconds: Int, elapsedSeconds: Int)
+    case timerPaused(exercise: Exercise, phase: TimerPhase, remainingSeconds: Int, elapsedSeconds: Int)
+    case timerFinished(exercise: Exercise, durationSeconds: Int)
     case error(message: String)
 }

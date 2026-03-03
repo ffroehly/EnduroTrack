@@ -1,63 +1,96 @@
-// RunningPresenter.swift
-// EnduroTrack › Features › Running › Presenter
-//
-// VIPER: Presenter layer for the Running module.
+// RunningPresenter.swift (Schedule feature)
+// EnduroTrack › Features › Running (Schedule)
 
 import Foundation
 import Domain
 import Combine
 
-/// Drives the Running screen. Observed by RunningView.
 @MainActor
-final class RunningPresenter: ObservableObject, RunningPresenterProtocol {
+final class SchedulePresenter: ObservableObject, SchedulePresenterProtocol {
 
-    // MARK: - Published State
+    @Published private(set) var state: ScheduleViewState = .loading
 
-    @Published private(set) var state: RunningViewState = .idle
+    private let interactor: ScheduleInteractorProtocol
+    private let router: ScheduleRouterProtocol
 
-    // MARK: - VIPER Dependencies
-
-    private let interactor: RunningInteractorProtocol
-    private let router: RunningRouterProtocol
-
-    // MARK: - Init
-
-    init(interactor: RunningInteractorProtocol, router: RunningRouterProtocol) {
+    init(interactor: ScheduleInteractorProtocol, router: ScheduleRouterProtocol) {
         self.interactor = interactor
         self.router = router
     }
 
-    // MARK: - RunningPresenterProtocol
-
     func viewDidAppear() async {
-        state = .idle
+        await loadData()
     }
 
-    func didTapStartRun() {
+    private func loadData() async {
+        state = .loading
+        do {
+            async let schedules = interactor.fetchSchedules()
+            async let exercises = interactor.fetchExercises()
+            let (s, e) = try await (schedules, exercises)
+            let exerciseMap = Dictionary(uniqueKeysWithValues: e.map { ($0.id, $0.title) })
+            let viewModels = s.map { schedule in
+                ScheduleViewModel(
+                    id: schedule.id,
+                    schedule: schedule,
+                    exerciseTitle: exerciseMap[schedule.exerciseId] ?? "Unknown Exercise"
+                )
+            }
+            if viewModels.isEmpty {
+                state = .empty(exercises: e)
+            } else {
+                state = .list(schedules: viewModels, exercises: e)
+            }
+        } catch {
+            state = .error(message: error.localizedDescription)
+        }
+    }
+
+    func didTapAddSchedule() {
         Task {
-            state = .loading
+            let exercises = (try? await interactor.fetchExercises()) ?? []
+            state = .showingCreateForm(exercises: exercises)
+        }
+    }
+
+    func didTapDeleteSchedule(id: UUID) {
+        Task {
             do {
-                let session = try await interactor.startRun()
-                state = .running(session: session)
+                try await interactor.deleteSchedule(id: id)
+                await loadData()
             } catch {
                 state = .error(message: error.localizedDescription)
             }
         }
     }
 
-    func didTapStopRun() {
-        guard case .running(let session) = state else { return }
+    func didTapEditSchedule(_ schedule: Schedule) {
+        Task {
+            let exercises = (try? await interactor.fetchExercises()) ?? []
+            state = .showingEditForm(schedule: schedule, exercises: exercises)
+        }
+    }
+
+    func didSaveNewSchedule(exerciseId: UUID, daySchedules: [DaySchedule]) {
         Task {
             do {
-                let stopped = try await interactor.stopRun(session)
-                state = .stopped(session: stopped)
+                _ = try await interactor.createSchedule(exerciseId: exerciseId, daySchedules: daySchedules)
+                await loadData()
             } catch {
                 state = .error(message: error.localizedDescription)
             }
         }
     }
 
-    func didTapHistory() {
-        router.navigateToRunHistory()
+    func didSaveEditedSchedule(_ schedule: Schedule, exerciseId: UUID, daySchedules: [DaySchedule]) {
+        Task {
+            do {
+                let updated = Schedule(id: schedule.id, exerciseId: exerciseId, daySchedules: daySchedules, createdAt: schedule.createdAt)
+                _ = try await interactor.updateSchedule(updated)
+                await loadData()
+            } catch {
+                state = .error(message: error.localizedDescription)
+            }
+        }
     }
 }

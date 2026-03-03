@@ -1,58 +1,56 @@
-// WorkoutInteractor.swift
-// EnduroTrack › Features › Workout › Interactor
-//
-// VIPER: Interactor layer for the Workout module.
-// Contains business logic: creating, updating, and finishing workouts.
+// WorkoutInteractor.swift (Exercises feature)
+// EnduroTrack › Features › Workout (Exercises)
 
 import Foundation
 import Domain
 
-/// Handles business logic for the Workout feature.
-final class WorkoutInteractor: WorkoutInteractorProtocol {
+final class ExercisesInteractor: ExercisesInteractorProtocol {
 
-    // MARK: - Dependencies
-
-    private let createWorkoutUseCase: CreateWorkoutUseCaseProtocol
-    private let updateWorkoutUseCase: UpdateWorkoutUseCaseProtocol
-
-    // MARK: - Init
+    private let fetchExercisesUseCase: FetchExercisesUseCaseProtocol
+    private let createExerciseUseCase: CreateExerciseUseCaseProtocol
+    private let updateExerciseUseCase: UpdateExerciseUseCaseProtocol
+    private let deleteExerciseUseCase: DeleteExerciseUseCaseProtocol
+    private let saveSessionUseCase: SaveExerciseSessionUseCaseProtocol
 
     init(
-        createWorkoutUseCase: CreateWorkoutUseCaseProtocol,
-        updateWorkoutUseCase: UpdateWorkoutUseCaseProtocol
+        fetchExercisesUseCase: FetchExercisesUseCaseProtocol,
+        createExerciseUseCase: CreateExerciseUseCaseProtocol,
+        updateExerciseUseCase: UpdateExerciseUseCaseProtocol,
+        deleteExerciseUseCase: DeleteExerciseUseCaseProtocol,
+        saveSessionUseCase: SaveExerciseSessionUseCaseProtocol
     ) {
-        self.createWorkoutUseCase = createWorkoutUseCase
-        self.updateWorkoutUseCase = updateWorkoutUseCase
+        self.fetchExercisesUseCase = fetchExercisesUseCase
+        self.createExerciseUseCase = createExerciseUseCase
+        self.updateExerciseUseCase = updateExerciseUseCase
+        self.deleteExerciseUseCase = deleteExerciseUseCase
+        self.saveSessionUseCase = saveSessionUseCase
     }
 
-    // MARK: - WorkoutInteractorProtocol
+    func fetchExercises() async throws -> [Exercise] {
+        try await fetchExercisesUseCase.fetchAll()
+    }
 
-    func createWorkout(title: String, type: WorkoutType) async throws -> Workout {
-        let workout = Workout(
+    func createExercise(title: String, warmupSeconds: Int, activeSeconds: Int, restSeconds: Int, repetitions: Int, recoverySeconds: Int?) async throws -> Exercise {
+        let exercise = Exercise(
             title: title,
-            type: type,
-            status: .inProgress,
-            startedAt: Date(),
-            durationSeconds: 0
+            warmupSeconds: warmupSeconds,
+            activeSeconds: activeSeconds,
+            restSeconds: restSeconds,
+            repetitions: repetitions,
+            recoverySeconds: recoverySeconds
         )
-        return try await createWorkoutUseCase.create(workout: workout)
+        return try await createExerciseUseCase.create(exercise: exercise)
     }
 
-    func updateWorkout(_ workout: Workout) async throws -> Workout {
-        try await updateWorkoutUseCase.update(workout: workout)
+    func updateExercise(_ exercise: Exercise) async throws -> Exercise {
+        try await updateExerciseUseCase.update(exercise: exercise)
     }
 
-    func finishWorkout(_ workout: Workout) async throws -> Workout {
-        let finished = Workout(
-            id: workout.id,
-            title: workout.title,
-            type: workout.type,
-            status: .completed,
-            startedAt: workout.startedAt,
-            finishedAt: Date(),
-            durationSeconds: Int(Date().timeIntervalSince(workout.startedAt)),
-            exercises: workout.exercises
-        )
-        return try await updateWorkoutUseCase.update(workout: finished)
+    func deleteExercise(id: UUID) async throws {
+        try await deleteExerciseUseCase.delete(exerciseID: id)
+    }
+
+    func saveSession(_ session: ExerciseSession) async throws -> ExerciseSession {
+        try await saveSessionUseCase.save(session: session)
     }
 }

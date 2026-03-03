@@ -1,33 +1,20 @@
 // HomeView.swift
-// EnduroTrack › Features › Home › View
-//
-// VIPER: View layer.
-// Responsibilities:
-//  - Render UI based on state provided by the Presenter.
-//  - Forward user interactions to the Presenter.
-//  - No business logic — only layout and display.
-//
-// The View observes the Presenter (an ObservableObject) for state changes.
+// EnduroTrack › Features › Home
 
 import SwiftUI
+import Charts
 import Domain
 import DesignSystem
 
-/// The Home screen — displays a summary of recent workouts.
 struct HomeView: View {
 
-    // MARK: - VIPER Wiring
-
-    /// The Presenter drives all state. The View only calls back on user actions.
     @StateObject private var presenter: HomePresenter
-
-    // MARK: - Init
+    @AppStorage("colorScheme") private var colorSchemePreference: String = "system"
+    @State private var showingSettings = false
 
     init(presenter: HomePresenter) {
         _presenter = StateObject(wrappedValue: presenter)
     }
-
-    // MARK: - Body
 
     var body: some View {
         NavigationStack {
@@ -36,11 +23,14 @@ struct HomeView: View {
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
-                            presenter.didTapNewWorkout()
+                            showingSettings = true
                         } label: {
-                            Image(systemName: "plus")
+                            Image(systemName: "gearshape")
                         }
                     }
+                }
+                .sheet(isPresented: $showingSettings) {
+                    SettingsView(colorSchemePreference: $colorSchemePreference)
                 }
         }
         .task {
@@ -48,84 +38,157 @@ struct HomeView: View {
         }
     }
 
-    // MARK: - Content
-
     @ViewBuilder
     private var content: some View {
         switch presenter.state {
         case .loading:
-            loadingView
-        case .loaded(let workouts):
-            workoutListView(workouts: workouts)
+            ProgressView("Loading…")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+        case .loaded(let nextExercise, let recentSessions):
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    nextExerciseSection(nextExercise)
+                    if !recentSessions.isEmpty {
+                        recentSessionsChart(recentSessions)
+                    }
+                }
+                .padding()
+            }
+
         case .error(let message):
-            errorView(message: message)
-        case .empty:
-            emptyView
+            VStack(spacing: 16) {
+                Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 48))
+                    .foregroundStyle(AppColors.error)
+                Text(message)
+                    .font(AppFonts.bodyMedium)
+                    .multilineTextAlignment(.center)
+            }
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
-    // MARK: - Sub-Views
+    // MARK: - Next Exercise Section
 
-    private var loadingView: some View {
-        ProgressView("Loading workouts…")
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
+    @ViewBuilder
+    private func nextExerciseSection(_ info: NextExerciseInfo?) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Next Exercise")
+                .font(AppFonts.headlineLarge)
 
-    private func workoutListView(workouts: [Workout]) -> some View {
-        ScrollView {
-            LazyVStack(spacing: 12) {
-                ForEach(workouts) { workout in
-                    Card {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(workout.title)
-                                .font(AppFonts.headlineMedium)
-                            Text(workout.type.displayName)
+            if let info {
+                Card {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(info.exerciseTitle)
+                            .font(AppFonts.headlineMedium)
+                            .foregroundStyle(AppColors.textPrimary)
+                        HStack {
+                            Image(systemName: "calendar")
+                                .foregroundStyle(AppColors.textSecondary)
+                            Text(info.isToday ? "Today at \(info.reminderTimeFormatted)" : "\(info.dayOfWeek.displayName) at \(info.reminderTimeFormatted)")
                                 .font(AppFonts.bodyMedium)
                                 .foregroundStyle(AppColors.textSecondary)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        if info.isToday {
+                            PrimaryButton(title: "Start Now") {
+                                presenter.didTapStartExercise(exerciseId: info.exerciseId)
+                            }
+                        }
                     }
-                    .onTapGesture {
-                        presenter.didSelectWorkout(workout)
+                }
+            } else {
+                Card {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("No exercise scheduled")
+                            .font(AppFonts.headlineMedium)
+                            .foregroundStyle(AppColors.textSecondary)
+                        PrimaryButton(title: "Set Up Schedule", style: .outlined) {
+                            presenter.didTapGoToSchedule()
+                        }
                     }
                 }
             }
-            .padding()
         }
     }
 
-    private var emptyView: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "figure.run.circle")
-                .font(.system(size: 64))
-                .foregroundStyle(AppColors.primary)
-            Text("No workouts yet")
+    // MARK: - Recent Sessions Chart
+
+    private func recentSessionsChart(_ sessions: [ExerciseSession]) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Recent Sessions")
                 .font(AppFonts.headlineLarge)
-            Text("Tap + to create your first workout.")
-                .font(AppFonts.bodyMedium)
-                .foregroundStyle(AppColors.textSecondary)
-                .multilineTextAlignment(.center)
-            PrimaryButton(title: "New Workout") {
-                presenter.didTapNewWorkout()
+
+            Card {
+                Chart(Array(sessions.prefix(5).reversed())) { session in
+                    LineMark(
+                        x: .value("Date", session.completedAt),
+                        y: .value("Duration (min)", session.durationSeconds / 60)
+                    )
+                    .foregroundStyle(AppColors.primary)
+                    PointMark(
+                        x: .value("Date", session.completedAt),
+                        y: .value("Duration (min)", session.durationSeconds / 60)
+                    )
+                    .foregroundStyle(AppColors.primary)
+                }
+                .chartXAxis {
+                    AxisMarks { value in
+                        if let date = value.as(Date.self) {
+                            AxisValueLabel {
+                                Text(shortDateLabel(date))
+                                    .font(AppFonts.labelSmall)
+                            }
+                        }
+                        AxisGridLine()
+                    }
+                }
+                .chartYAxis {
+                    AxisMarks { value in
+                        if let v = value.as(Int.self) {
+                            AxisValueLabel { Text("\(v)m") }
+                            AxisGridLine()
+                        }
+                    }
+                }
+                .frame(height: 160)
             }
         }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private func errorView(message: String) -> some View {
-        VStack(spacing: 16) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 48))
-                .foregroundStyle(AppColors.error)
-            Text("Something went wrong")
-                .font(AppFonts.headlineLarge)
-            Text(message)
-                .font(AppFonts.bodyMedium)
-                .foregroundStyle(AppColors.textSecondary)
-                .multilineTextAlignment(.center)
+    private func shortDateLabel(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "d MMM"
+        return f.string(from: date)
+    }
+}
+
+// MARK: - SettingsView
+
+struct SettingsView: View {
+    @Binding var colorSchemePreference: String
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Appearance") {
+                    Picker("Theme", selection: $colorSchemePreference) {
+                        Text("System").tag("system")
+                        Text("Light").tag("light")
+                        Text("Dark").tag("dark")
+                    }
+                    .pickerStyle(.segmented)
+                }
+            }
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
         }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

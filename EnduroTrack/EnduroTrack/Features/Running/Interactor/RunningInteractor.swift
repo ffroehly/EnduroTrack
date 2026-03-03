@@ -1,56 +1,49 @@
-// RunningInteractor.swift
-// EnduroTrack › Features › Running › Interactor
-//
-// VIPER: Interactor layer for the Running module.
-// Contains business logic for starting, tracking, and stopping runs.
+// RunningInteractor.swift (Schedule feature)
+// EnduroTrack › Features › Running (Schedule)
 
 import Foundation
 import Domain
 
-/// Handles business logic for the Running feature.
-final class RunningInteractor: RunningInteractorProtocol {
+final class ScheduleInteractor: ScheduleInteractorProtocol {
 
-    // MARK: - Dependencies
-
-    private let saveRunSessionUseCase: SaveRunSessionUseCaseProtocol
-    private let fetchRunSessionsUseCase: FetchRunSessionsUseCaseProtocol
-
-    // MARK: - Init
+    private let fetchSchedulesUseCase: FetchSchedulesUseCaseProtocol
+    private let createScheduleUseCase: CreateScheduleUseCaseProtocol
+    private let updateScheduleUseCase: UpdateScheduleUseCaseProtocol
+    private let deleteScheduleUseCase: DeleteScheduleUseCaseProtocol
+    private let fetchExercisesUseCase: FetchExercisesUseCaseProtocol
 
     init(
-        saveRunSessionUseCase: SaveRunSessionUseCaseProtocol,
-        fetchRunSessionsUseCase: FetchRunSessionsUseCaseProtocol
+        fetchSchedulesUseCase: FetchSchedulesUseCaseProtocol,
+        createScheduleUseCase: CreateScheduleUseCaseProtocol,
+        updateScheduleUseCase: UpdateScheduleUseCaseProtocol,
+        deleteScheduleUseCase: DeleteScheduleUseCaseProtocol,
+        fetchExercisesUseCase: FetchExercisesUseCaseProtocol
     ) {
-        self.saveRunSessionUseCase = saveRunSessionUseCase
-        self.fetchRunSessionsUseCase = fetchRunSessionsUseCase
+        self.fetchSchedulesUseCase = fetchSchedulesUseCase
+        self.createScheduleUseCase = createScheduleUseCase
+        self.updateScheduleUseCase = updateScheduleUseCase
+        self.deleteScheduleUseCase = deleteScheduleUseCase
+        self.fetchExercisesUseCase = fetchExercisesUseCase
     }
 
-    // MARK: - RunningInteractorProtocol
-
-    func startRun() async throws -> RunSession {
-        let session = RunSession(
-            startedAt: Date(),
-            distanceMeters: 0,
-            durationSeconds: 0
-        )
-        return try await saveRunSessionUseCase.save(session: session)
+    func fetchSchedules() async throws -> [Schedule] {
+        try await fetchSchedulesUseCase.fetchAll()
     }
 
-    func stopRun(_ session: RunSession) async throws -> RunSession {
-        let stopped = RunSession(
-            id: session.id,
-            startedAt: session.startedAt,
-            finishedAt: Date(),
-            distanceMeters: session.distanceMeters,
-            durationSeconds: Int(Date().timeIntervalSince(session.startedAt)),
-            averagePaceSecondsPerKm: session.averagePaceSecondsPerKm,
-            calories: session.calories,
-            route: session.route
-        )
-        return try await saveRunSessionUseCase.save(session: stopped)
+    func fetchExercises() async throws -> [Exercise] {
+        try await fetchExercisesUseCase.fetchAll()
     }
 
-    func fetchRunHistory() async throws -> [RunSession] {
-        try await fetchRunSessionsUseCase.fetchAll()
+    func createSchedule(exerciseId: UUID, daySchedules: [DaySchedule]) async throws -> Schedule {
+        let schedule = Schedule(exerciseId: exerciseId, daySchedules: daySchedules)
+        return try await createScheduleUseCase.create(schedule: schedule)
+    }
+
+    func updateSchedule(_ schedule: Schedule) async throws -> Schedule {
+        try await updateScheduleUseCase.update(schedule: schedule)
+    }
+
+    func deleteSchedule(id: UUID) async throws {
+        try await deleteScheduleUseCase.delete(scheduleID: id)
     }
 }

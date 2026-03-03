@@ -1,27 +1,18 @@
-// TimerInteractor.swift
-// EnduroTrack › Features › Timer › Interactor
-//
-// VIPER: Interactor layer for the Timer module.
+// TimerInteractor.swift (History feature)
+// EnduroTrack › Features › Timer (History)
 
 import Foundation
 import Domain
 
-/// Handles business logic for the Timer feature.
-final class TimerInteractor: TimerInteractorProtocol {
+final class HistoryInteractor: HistoryInteractorProtocol {
 
-    // MARK: - Dependencies
+    private let fetchSessionsUseCase: FetchExerciseSessionsUseCaseProtocol
 
-    private let fetchTimerSessionsUseCase: FetchTimerSessionsUseCaseProtocol
-
-    // MARK: - Init
-
-    init(fetchTimerSessionsUseCase: FetchTimerSessionsUseCaseProtocol) {
-        self.fetchTimerSessionsUseCase = fetchTimerSessionsUseCase
+    init(fetchSessionsUseCase: FetchExerciseSessionsUseCaseProtocol) {
+        self.fetchSessionsUseCase = fetchSessionsUseCase
     }
 
-    // MARK: - TimerInteractorProtocol
-
-    func fetchTimerPresets() async throws -> [TimerSession] {
-        try await fetchTimerSessionsUseCase.fetchAll()
+    func fetchAllSessions() async throws -> [ExerciseSession] {
+        try await fetchSessionsUseCase.fetchAll()
     }
 }

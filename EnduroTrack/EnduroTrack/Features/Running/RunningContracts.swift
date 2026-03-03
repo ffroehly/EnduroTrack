@@ -1,50 +1,47 @@
-// RunningContracts.swift
-// EnduroTrack › Features › Running
-//
-// VIPER contracts for the Running module.
+// RunningContracts.swift (Schedule feature)
+// EnduroTrack › Features › Running (Schedule)
 
 import Foundation
 import Domain
 
-// MARK: - View Protocol
-
 @MainActor
-protocol RunningViewProtocol: AnyObject {
-    func render(state: RunningViewState)
+protocol ScheduleViewProtocol: AnyObject {
+    func render(state: ScheduleViewState)
 }
 
-// MARK: - Presenter Protocol
-
 @MainActor
-protocol RunningPresenterProtocol: AnyObject {
+protocol SchedulePresenterProtocol: AnyObject {
     func viewDidAppear() async
-    func didTapStartRun()
-    func didTapStopRun()
-    func didTapHistory()
+    func didTapAddSchedule()
+    func didTapDeleteSchedule(id: UUID)
+    func didTapEditSchedule(_ schedule: Schedule)
+    func didSaveNewSchedule(exerciseId: UUID, daySchedules: [DaySchedule])
+    func didSaveEditedSchedule(_ schedule: Schedule, exerciseId: UUID, daySchedules: [DaySchedule])
 }
 
-// MARK: - Interactor Protocol
-
-protocol RunningInteractorProtocol: AnyObject {
-    func startRun() async throws -> RunSession
-    func stopRun(_ session: RunSession) async throws -> RunSession
-    func fetchRunHistory() async throws -> [RunSession]
+protocol ScheduleInteractorProtocol: AnyObject {
+    func fetchSchedules() async throws -> [Schedule]
+    func fetchExercises() async throws -> [Exercise]
+    func createSchedule(exerciseId: UUID, daySchedules: [DaySchedule]) async throws -> Schedule
+    func updateSchedule(_ schedule: Schedule) async throws -> Schedule
+    func deleteSchedule(id: UUID) async throws
 }
-
-// MARK: - Router Protocol
 
 @MainActor
-protocol RunningRouterProtocol: AnyObject {
-    func navigateToRunHistory()
-    func navigateToRunDetail(_ session: RunSession)
+protocol ScheduleRouterProtocol: AnyObject {}
+
+/// View model combining a Schedule with its exercise name for display.
+struct ScheduleViewModel: Equatable, Identifiable {
+    let id: UUID
+    let schedule: Schedule
+    let exerciseTitle: String
 }
 
-// MARK: - View State
-
-enum RunningViewState: Equatable {
-    case idle
+enum ScheduleViewState: Equatable {
     case loading
-    case running(session: RunSession)
-    case stopped(session: RunSession)
+    case list(schedules: [ScheduleViewModel], exercises: [Exercise])
+    case empty(exercises: [Exercise])
+    case showingCreateForm(exercises: [Exercise])
+    case showingEditForm(schedule: Schedule, exercises: [Exercise])
     case error(message: String)
 }

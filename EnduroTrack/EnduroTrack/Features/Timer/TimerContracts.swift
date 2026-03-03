@@ -1,51 +1,39 @@
-// TimerContracts.swift
-// EnduroTrack › Features › Timer
-//
-// VIPER contracts for the Timer module.
+// TimerContracts.swift (History feature)
+// EnduroTrack › Features › Timer (History)
 
 import Foundation
 import Domain
 
-// MARK: - View Protocol
-
 @MainActor
-protocol TimerViewProtocol: AnyObject {
-    func render(state: TimerViewState)
+protocol HistoryViewProtocol: AnyObject {
+    func render(state: HistoryViewState)
 }
 
-// MARK: - Presenter Protocol
-
 @MainActor
-protocol TimerPresenterProtocol: AnyObject {
+protocol HistoryPresenterProtocol: AnyObject {
     func viewDidAppear() async
-    func didSelectSession(_ session: TimerSession)
-    func didTapStartTimer(session: TimerSession)
-    func didTapPauseTimer()
-    func didTapResumeTimer()
-    func didTapStopTimer()
-    func didTapCreateNewTimer()
+    func didTapPreviousMonth()
+    func didTapNextMonth()
 }
 
-// MARK: - Interactor Protocol
-
-protocol TimerInteractorProtocol: AnyObject {
-    func fetchTimerPresets() async throws -> [TimerSession]
+protocol HistoryInteractorProtocol: AnyObject {
+    func fetchAllSessions() async throws -> [ExerciseSession]
 }
-
-// MARK: - Router Protocol
 
 @MainActor
-protocol TimerRouterProtocol: AnyObject {
-    func navigateToCreateTimer()
+protocol HistoryRouterProtocol: AnyObject {}
+
+/// A data point for the monthly chart: one bar per day that had sessions.
+struct DailySessionSummary: Identifiable, Equatable {
+    let id: Date
+    let date: Date
+    let totalDurationMinutes: Int
+    let sessionCount: Int
 }
 
-// MARK: - View State
-
-enum TimerViewState: Equatable {
+enum HistoryViewState: Equatable {
     case loading
-    case idle(presets: [TimerSession])
-    case running(session: TimerSession, remainingSeconds: Int, currentIntervalIndex: Int)
-    case paused(session: TimerSession, remainingSeconds: Int, currentIntervalIndex: Int)
-    case finished(session: TimerSession)
+    case loaded(sessions: [ExerciseSession], monthlySummaries: [DailySessionSummary], selectedMonth: Date)
+    case empty
     case error(message: String)
 }

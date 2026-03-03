@@ -1,25 +1,28 @@
-// RunningBuilder.swift
-// EnduroTrack › Features › Running
-//
-// VIPER Builder — assembles the Running module with injected dependencies.
+// RunningBuilder.swift (Schedule feature)
+// EnduroTrack › Features › Running (Schedule)
 
 import SwiftUI
 import Domain
 
-/// Assembles and returns a fully wired Running VIPER module.
-enum RunningBuilder {
+enum ScheduleBuilder {
 
     @MainActor
     static func build(
-        saveRunSessionUseCase: SaveRunSessionUseCaseProtocol,
-        fetchRunSessionsUseCase: FetchRunSessionsUseCaseProtocol
+        fetchSchedulesUseCase: FetchSchedulesUseCaseProtocol,
+        createScheduleUseCase: CreateScheduleUseCaseProtocol,
+        updateScheduleUseCase: UpdateScheduleUseCaseProtocol,
+        deleteScheduleUseCase: DeleteScheduleUseCaseProtocol,
+        fetchExercisesUseCase: FetchExercisesUseCaseProtocol
     ) -> some View {
-        let router = RunningRouter()
-        let interactor = RunningInteractor(
-            saveRunSessionUseCase: saveRunSessionUseCase,
-            fetchRunSessionsUseCase: fetchRunSessionsUseCase
+        let router = ScheduleRouter()
+        let interactor = ScheduleInteractor(
+            fetchSchedulesUseCase: fetchSchedulesUseCase,
+            createScheduleUseCase: createScheduleUseCase,
+            updateScheduleUseCase: updateScheduleUseCase,
+            deleteScheduleUseCase: deleteScheduleUseCase,
+            fetchExercisesUseCase: fetchExercisesUseCase
         )
-        let presenter = RunningPresenter(interactor: interactor, router: router)
-        return RunningView(presenter: presenter)
+        let presenter = SchedulePresenter(interactor: interactor, router: router)
+        return ScheduleView(presenter: presenter)
     }
 }
