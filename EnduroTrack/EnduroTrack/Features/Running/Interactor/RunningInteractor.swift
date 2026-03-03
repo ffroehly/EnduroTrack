@@ -33,7 +33,7 @@ final class RunningInteractor: RunningInteractorProtocol {
             distanceMeters: 0,
             durationSeconds: 0
         )
-        return try await saveRunSessionUseCase.execute(session: session)
+        return try await saveRunSessionUseCase.save(session: session)
     }
 
     func stopRun(_ session: RunSession) async throws -> RunSession {
@@ -47,10 +47,10 @@ final class RunningInteractor: RunningInteractorProtocol {
             calories: session.calories,
             route: session.route
         )
-        return try await saveRunSessionUseCase.execute(session: stopped)
+        return try await saveRunSessionUseCase.save(session: stopped)
     }
 
     func fetchRunHistory() async throws -> [RunSession] {
-        try await fetchRunSessionsUseCase.execute()
+        try await fetchRunSessionsUseCase.fetchAll()
     }
 }

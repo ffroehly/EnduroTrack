@@ -22,6 +22,6 @@ final class TimerInteractor: TimerInteractorProtocol {
     // MARK: - TimerInteractorProtocol
 
     func fetchTimerPresets() async throws -> [TimerSession] {
-        try await fetchTimerSessionsUseCase.execute()
+        try await fetchTimerSessionsUseCase.fetchAll()
     }
 }

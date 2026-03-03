@@ -24,19 +24,19 @@ final class RunningService:
 
     // MARK: - FetchRunSessionsUseCaseProtocol
 
-    func execute() async throws -> [RunSession] {
+    func fetchAll() async throws -> [RunSession] {
         try await repository.fetchAll()
     }
 
     // MARK: - SaveRunSessionUseCaseProtocol
 
-    func execute(session: RunSession) async throws -> RunSession {
+    func save(session: RunSession) async throws -> RunSession {
         try await repository.save(session)
     }
 
     // MARK: - DeleteRunSessionUseCaseProtocol
 
-    func execute(sessionID: UUID) async throws {
+    func delete(sessionID: UUID) async throws {
         try await repository.delete(id: sessionID)
     }
 }

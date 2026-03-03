@@ -6,6 +6,7 @@
 
 import SwiftUI
 import Domain
+import Combine
 
 /// Drives navigation from the Workout screen.
 @MainActor

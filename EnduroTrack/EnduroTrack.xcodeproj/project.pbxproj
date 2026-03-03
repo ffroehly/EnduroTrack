@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		1B7FA11C2F56FD35004E86A9 /* Domain in Frameworks */ = {isa = PBXBuildFile; productRef = 1B7FA11B2F56FD35004E86A9 /* Domain */; };
+		1B7FA11E2F56FD35004E86A9 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 1B7FA11D2F56FD35004E86A9 /* DesignSystem */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		1BCD4D592F55ECC80074A67C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +57,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1B7FA11C2F56FD35004E86A9 /* Domain in Frameworks */,
+				1B7FA11E2F56FD35004E86A9 /* DesignSystem in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,12 +79,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1B7FA11A2F56FD35004E86A9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		1BCD4D422F55ECC60074A67C = {
 			isa = PBXGroup;
 			children = (
 				1BCD4D4D2F55ECC60074A67C /* EnduroTrack */,
 				1BCD4D5B2F55ECC80074A67C /* EnduroTrackTests */,
 				1BCD4D652F55ECC80074A67C /* EnduroTrackUITests */,
+				1B7FA11A2F56FD35004E86A9 /* Frameworks */,
 				1BCD4D4C2F55ECC60074A67C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,6 +127,8 @@
 			);
 			name = EnduroTrack;
 			packageProductDependencies = (
+				1B7FA11B2F56FD35004E86A9 /* Domain */,
+				1B7FA11D2F56FD35004E86A9 /* DesignSystem */,
 			);
 			productName = EnduroTrack;
 			productReference = 1BCD4D4B2F55ECC60074A67C /* EnduroTrack.app */;
@@ -195,6 +212,10 @@
 			);
 			mainGroup = 1BCD4D422F55ECC60074A67C;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				1BE1B0552F56F6710044AA8D /* XCLocalSwiftPackageReference "../Domain" */,
+				1BE1B0562F56F6820044AA8D /* XCLocalSwiftPackageReference "../DesignSystem" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1BCD4D4C2F55ECC60074A67C /* Products */;
 			projectDirPath = "";
@@ -578,6 +599,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		1BE1B0552F56F6710044AA8D /* XCLocalSwiftPackageReference "../Domain" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../Domain;
+		};
+		1BE1B0562F56F6820044AA8D /* XCLocalSwiftPackageReference "../DesignSystem" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../DesignSystem;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1B7FA11B2F56FD35004E86A9 /* Domain */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BE1B0552F56F6710044AA8D /* XCLocalSwiftPackageReference "../Domain" */;
+			productName = Domain;
+		};
+		1B7FA11D2F56FD35004E86A9 /* DesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BE1B0562F56F6820044AA8D /* XCLocalSwiftPackageReference "../DesignSystem" */;
+			productName = DesignSystem;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1BCD4D432F55ECC60074A67C /* Project object */;
 }

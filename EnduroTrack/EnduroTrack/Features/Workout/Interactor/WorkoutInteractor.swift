@@ -35,11 +35,11 @@ final class WorkoutInteractor: WorkoutInteractorProtocol {
             startedAt: Date(),
             durationSeconds: 0
         )
-        return try await createWorkoutUseCase.execute(workout: workout)
+        return try await createWorkoutUseCase.create(workout: workout)
     }
 
     func updateWorkout(_ workout: Workout) async throws -> Workout {
-        try await updateWorkoutUseCase.execute(workout: workout)
+        try await updateWorkoutUseCase.update(workout: workout)
     }
 
     func finishWorkout(_ workout: Workout) async throws -> Workout {
@@ -53,6 +53,6 @@ final class WorkoutInteractor: WorkoutInteractorProtocol {
             durationSeconds: Int(Date().timeIntervalSince(workout.startedAt)),
             exercises: workout.exercises
         )
-        return try await updateWorkoutUseCase.execute(workout: finished)
+        return try await updateWorkoutUseCase.update(workout: finished)
     }
 }

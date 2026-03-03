@@ -11,17 +11,17 @@ import Foundation
 /// Defines all read operations for run sessions.
 public protocol FetchRunSessionsUseCaseProtocol: Sendable {
     /// Fetches all stored run sessions.
-    func execute() async throws -> [RunSession]
+    func fetchAll() async throws -> [RunSession]
 }
 
 /// Defines the saving of a new run session.
 public protocol SaveRunSessionUseCaseProtocol: Sendable {
     /// Persists a completed run session and returns the saved instance.
-    func execute(session: RunSession) async throws -> RunSession
+    func save(session: RunSession) async throws -> RunSession
 }
 
 /// Defines the deletion of a run session.
 public protocol DeleteRunSessionUseCaseProtocol: Sendable {
     /// Deletes the run session with the specified identifier.
-    func execute(sessionID: UUID) async throws
+    func delete(sessionID: UUID) async throws
 }

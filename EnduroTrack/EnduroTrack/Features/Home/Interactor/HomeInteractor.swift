@@ -30,6 +30,6 @@ final class HomeInteractor: HomeInteractorProtocol {
     // MARK: - HomeInteractorProtocol
 
     func fetchRecentWorkouts() async throws -> [Workout] {
-        try await fetchWorkoutsUseCase.execute()
+        try await fetchWorkoutsUseCase.fetchAll()
     }
 }

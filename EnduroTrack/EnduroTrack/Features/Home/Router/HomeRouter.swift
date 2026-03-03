@@ -12,6 +12,7 @@
 
 import SwiftUI
 import Domain
+import Combine
 
 /// Drives navigation from the Home screen.
 @MainActor

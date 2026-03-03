@@ -7,6 +7,7 @@
 
 import Foundation
 import Domain
+import Combine
 
 /// Drives the Workout screen. Observed by WorkoutView.
 @MainActor

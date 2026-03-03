@@ -5,6 +5,7 @@
 
 import Foundation
 import Domain
+import Combine
 
 /// Drives the Running screen. Observed by RunningView.
 @MainActor

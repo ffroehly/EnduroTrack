@@ -24,19 +24,19 @@ final class TimerService:
 
     // MARK: - FetchTimerSessionsUseCaseProtocol
 
-    func execute() async throws -> [TimerSession] {
+    func fetchAll() async throws -> [TimerSession] {
         try await repository.fetchAll()
     }
 
     // MARK: - CreateTimerSessionUseCaseProtocol
 
-    func execute(session: TimerSession) async throws -> TimerSession {
+    func create(session: TimerSession) async throws -> TimerSession {
         try await repository.save(session)
     }
 
     // MARK: - DeleteTimerSessionUseCaseProtocol
 
-    func execute(sessionID: UUID) async throws {
+    func delete(sessionID: UUID) async throws {
         try await repository.delete(id: sessionID)
     }
 }

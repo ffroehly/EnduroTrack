@@ -13,23 +13,23 @@ import Foundation
 /// Defines all read operations for workouts.
 public protocol FetchWorkoutsUseCaseProtocol: Sendable {
     /// Fetches all stored workouts.
-    func execute() async throws -> [Workout]
+    func fetchAll() async throws -> [Workout]
 }
 
 /// Defines the creation of a new workout.
 public protocol CreateWorkoutUseCaseProtocol: Sendable {
     /// Persists a new workout and returns the saved instance.
-    func execute(workout: Workout) async throws -> Workout
+    func create(workout: Workout) async throws -> Workout
 }
 
 /// Defines the update of an existing workout.
 public protocol UpdateWorkoutUseCaseProtocol: Sendable {
     /// Updates an existing workout and returns the updated instance.
-    func execute(workout: Workout) async throws -> Workout
+    func update(workout: Workout) async throws -> Workout
 }
 
 /// Defines the deletion of a workout.
 public protocol DeleteWorkoutUseCaseProtocol: Sendable {
     /// Deletes the workout with the specified identifier.
-    func execute(workoutID: UUID) async throws
+    func delete(workoutID: UUID) async throws
 }

@@ -30,25 +30,25 @@ final class WorkoutService:
 
     // MARK: - FetchWorkoutsUseCaseProtocol
 
-    func execute() async throws -> [Workout] {
+    func fetchAll() async throws -> [Workout] {
         try await repository.fetchAll()
     }
 
     // MARK: - CreateWorkoutUseCaseProtocol
 
-    func execute(workout: Workout) async throws -> Workout {
+    func create(workout: Workout) async throws -> Workout {
         try await repository.save(workout)
     }
 
     // MARK: - UpdateWorkoutUseCaseProtocol
 
-    func execute(workout: Workout) async throws -> Workout {
+    func update(workout: Workout) async throws -> Workout {
         try await repository.update(workout)
     }
 
     // MARK: - DeleteWorkoutUseCaseProtocol
 
-    func execute(workoutID: UUID) async throws {
+    func delete(workoutID: UUID) async throws {
         try await repository.delete(id: workoutID)
     }
 }

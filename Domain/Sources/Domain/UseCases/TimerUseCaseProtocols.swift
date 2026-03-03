@@ -11,17 +11,17 @@ import Foundation
 /// Defines all read operations for timer sessions.
 public protocol FetchTimerSessionsUseCaseProtocol: Sendable {
     /// Fetches all stored timer sessions / presets.
-    func execute() async throws -> [TimerSession]
+    func fetchAll() async throws -> [TimerSession]
 }
 
 /// Defines the creation of a timer session preset.
 public protocol CreateTimerSessionUseCaseProtocol: Sendable {
     /// Persists a new timer session preset and returns the saved instance.
-    func execute(session: TimerSession) async throws -> TimerSession
+    func create(session: TimerSession) async throws -> TimerSession
 }
 
 /// Defines the deletion of a timer session preset.
 public protocol DeleteTimerSessionUseCaseProtocol: Sendable {
     /// Deletes the timer session preset with the specified identifier.
-    func execute(sessionID: UUID) async throws
+    func delete(sessionID: UUID) async throws
 }
