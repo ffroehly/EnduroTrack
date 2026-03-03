@@ -4,6 +4,9 @@
 //
 //  Created by Fabrice FROEHLY on 02/03/2026.
 //
+// ⚠️  This file is kept for Xcode project compatibility.
+//     The canonical ContentView has been moved to EnduroTrack/App/ContentView.swift.
+//     See EnduroTrackApp.swift for migration instructions.
 
 import SwiftUI
 
