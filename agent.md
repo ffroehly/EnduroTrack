@@ -21,7 +21,8 @@ See `ARCHITECTURE.md` for the full guide. In brief:
 - **Data** (app folder) — Concrete repositories and services. Implements Domain protocols.
 - **Features** (app folder) — VIPER modules: Home, Workout, Running, Timer.
 - **SharedModels** (app folder) — App-level shared enums and value objects.
-- **App** (app folder) — Entry point (`EnduroTrackApp.swift`) and root view (`ContentView.swift`).
+- `EnduroTrackApp.swift` — Entry point + Composition Root (root of the Xcode target).
+- `ContentView.swift` — Root TabView (root of the Xcode target).
 
 ---
 

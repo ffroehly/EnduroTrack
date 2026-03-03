@@ -231,9 +231,8 @@ EnduroTrack/                        ← Git repository root
 │
 ├── EnduroTrack/                    ← Xcode Project
 │   └── EnduroTrack/                ← App Target
-│       ├── App/
-│       │   ├── EnduroTrackApp.swift    ← @main entry point + Composition Root
-│       │   └── ContentView.swift      ← Root TabView
+│       ├── EnduroTrackApp.swift        ← @main entry point + Composition Root
+│       ├── ContentView.swift          ← Root TabView
 │       │
 │       ├── Data/
 │       │   ├── Repositories/           ← Concrete repository implementations
@@ -251,12 +250,9 @@ EnduroTrack/                        ← Git repository root
 │       │   ├── Running/               ← VIPER module
 │       │   └── Timer/                 ← VIPER module
 │       │
-│       ├── SharedModels/
-│       │   ├── SharedEnums.swift      ← AppTab, etc.
-│       │   └── SharedValueObjects.swift
-│       │
-│       └── Config/
-│           └── Info.plist
+│       └── SharedModels/
+│           ├── SharedEnums.swift      ← AppTab, etc.
+│           └── SharedValueObjects.swift
 │
 ├── agent.md                        ← AI agent instructions
 ├── ARCHITECTURE.md                 ← This file
@@ -348,13 +344,12 @@ The file structure is created on disk. To fully wire it up in Xcode:
 
 1. In Xcode's Project Navigator, right-click the `EnduroTrack` folder.
 2. Choose **"Add Files to EnduroTrack…"**
-3. Select the newly created folders: `App/`, `Data/`, `Features/`, `SharedModels/`, `Config/`
+3. Select the newly created folders: `Data/`, `Features/`, `SharedModels/`
 4. Make sure **"Add to target: EnduroTrack"** is checked.
 
-### Replace the Old Entry Point
-
-1. In `EnduroTrackApp.swift` (the root one), remove the `@main` attribute (or delete the file from the target).
-2. The new entry point is `App/EnduroTrackApp.swift`.
+> `EnduroTrackApp.swift` and `ContentView.swift` at the root of the target are already
+> wired up by the Xcode project — they contain the Composition Root and TabView respectively.
+> Do **not** add duplicate copies of these files.
 
 ---
 
