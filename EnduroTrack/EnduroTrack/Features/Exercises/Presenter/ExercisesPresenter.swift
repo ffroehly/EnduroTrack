@@ -28,7 +28,12 @@ final class ExercisesPresenter: ObservableObject, ExercisesPresenterProtocol {
     }
 
     func viewDidAppear() async {
-        await loadExercises()
+        switch state {
+        case .timerRunning, .timerPaused, .timerFinished:
+            return
+        default:
+            await loadExercises()
+        }
     }
 
     private func loadExercises() async {
