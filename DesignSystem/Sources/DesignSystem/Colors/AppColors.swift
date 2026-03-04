@@ -46,14 +46,4 @@ public enum AppColors {
     /// Error / destructive state color.
     public static let error = Color("Error", bundle: .module)
 
-    // MARK: - Workout Types
-
-    /// Accent color for strength workouts.
-    public static let strengthAccent = Color("StrengthAccent", bundle: .module)
-
-    /// Accent color for cardio workouts.
-    public static let cardioAccent = Color("CardioAccent", bundle: .module)
-
-    /// Accent color for running sessions.
-    public static let runningAccent = Color("RunningAccent", bundle: .module)
 }

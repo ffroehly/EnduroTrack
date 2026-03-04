@@ -6,24 +6,6 @@ import XCTest
 
 final class DomainTests: XCTestCase {
 
-    // MARK: - Workout Entity Tests
-
-    func testWorkoutEntityCreation() {
-        let workout = Workout(
-            title: "Morning Strength",
-            type: .strength,
-            status: .planned,
-            startedAt: Date(),
-            durationSeconds: 3600
-        )
-        XCTAssertFalse(workout.id.uuidString.isEmpty)
-        XCTAssertEqual(workout.title, "Morning Strength")
-        XCTAssertEqual(workout.type, .strength)
-        XCTAssertEqual(workout.status, .planned)
-        XCTAssertEqual(workout.durationSeconds, 3600)
-        XCTAssertTrue(workout.exercises.isEmpty)
-    }
-
     // MARK: - Exercise Entity Tests
 
     func testExerciseEntityCreation() {
@@ -82,22 +64,6 @@ final class DomainTests: XCTestCase {
         XCTAssertEqual(session.exerciseId, exerciseId)
         XCTAssertEqual(session.exerciseTitle, "Tabata")
         XCTAssertEqual(session.durationSeconds, 225)
-    }
-
-    // MARK: - WorkoutType Enum Tests
-
-    func testWorkoutTypeDisplayNames() {
-        XCTAssertEqual(WorkoutType.strength.displayName, "Strength")
-        XCTAssertEqual(WorkoutType.running.displayName, "Running")
-        XCTAssertEqual(WorkoutType.hiit.displayName, "HIIT")
-    }
-
-    // MARK: - WorkoutStatus Enum Tests
-
-    func testWorkoutStatusDisplayNames() {
-        XCTAssertEqual(WorkoutStatus.planned.displayName, "Planned")
-        XCTAssertEqual(WorkoutStatus.inProgress.displayName, "In Progress")
-        XCTAssertEqual(WorkoutStatus.completed.displayName, "Completed")
     }
 
     // MARK: - DayOfWeek Tests
