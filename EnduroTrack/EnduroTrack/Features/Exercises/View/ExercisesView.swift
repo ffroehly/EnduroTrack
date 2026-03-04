@@ -190,7 +190,7 @@ struct ExercisesView: View {
                 icon: "clock"
             )
             PrimaryButton(title: "Back to Exercises") {
-                Task { await presenter.viewDidAppear() }
+                Task { await presenter.didTapBackToExercises() }
             }
             .padding(.horizontal, 40)
         }

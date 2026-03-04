@@ -142,6 +142,10 @@ final class ExercisesPresenter: ObservableObject, ExercisesPresenterProtocol {
         }
     }
 
+    func didTapBackToExercises() async {
+        await loadExercises()
+    }
+
     func didTapPreviousStep() {
         countdownTask?.cancel()
         countdownTask = nil
