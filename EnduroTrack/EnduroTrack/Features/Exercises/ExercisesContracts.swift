@@ -23,6 +23,7 @@ protocol ExercisesPresenterProtocol: AnyObject {
     func didTapStartExercise(_ exercise: Exercise)
     func didSaveNewExercise(title: String, warmupSeconds: Int, activeSeconds: Int, restSeconds: Int, repetitions: Int, recoverySeconds: Int?)
     func didSaveEditedExercise(_ exercise: Exercise, title: String, warmupSeconds: Int, activeSeconds: Int, restSeconds: Int, repetitions: Int, recoverySeconds: Int?)
+    func didTapBackToExercises() async
     func didTapPauseTimer()
     func didTapResumeTimer()
     func didTapStopTimer()
