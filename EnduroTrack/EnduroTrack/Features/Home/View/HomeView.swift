@@ -37,6 +37,9 @@ struct HomeView: View {
         .task {
             await presenter.viewDidAppear()
         }
+        .onDisappear {
+            selectedSession = nil
+        }
     }
 
     @ViewBuilder
