@@ -134,22 +134,22 @@ struct HomeView: View {
                     )
                     .foregroundStyle(session.id == selectedSession?.id ? AppColors.secondary : AppColors.primary)
                     .symbolSize(session.id == selectedSession?.id ? 120 : 60)
-                    .annotation(position: .top, spacing: 6, overflowResolution: .init(x: .fit, y: .disabled)) {
+                    .annotation(position: .automatic, spacing: 6, overflowResolution: .init(x: .fit, y: .fit)) {
                         if session.id == selectedSession?.id {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(session.exerciseTitle)
                                     .font(AppFonts.labelSmall)
-                                    .foregroundStyle(AppColors.textPrimary)
+                                    .foregroundStyle(.white)
                                 Text(shortDateLabel(session.completedAt))
                                     .font(AppFonts.labelSmall)
-                                    .foregroundStyle(AppColors.textSecondary)
+                                    .foregroundStyle(.white.opacity(0.8))
                                 Text(durationLabel(session.durationSeconds))
                                     .font(AppFonts.labelSmall)
-                                    .foregroundStyle(AppColors.textSecondary)
+                                    .foregroundStyle(.white.opacity(0.8))
                             }
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(AppColors.backgroundSecondary)
+                            .background(AppColors.primary)
                             .clipShape(RoundedRectangle(cornerRadius: 6))
                             .accessibilityLabel("\(session.exerciseTitle), \(shortDateLabel(session.completedAt)), \(durationLabel(session.durationSeconds))")
                         }
@@ -202,7 +202,7 @@ struct HomeView: View {
 
     private static let shortDateFormatter: DateFormatter = {
         let f = DateFormatter()
-        f.dateFormat = "d MMM"
+        f.dateFormat = "d/MM"
         return f
     }()
 
