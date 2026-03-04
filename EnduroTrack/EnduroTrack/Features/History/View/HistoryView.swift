@@ -148,6 +148,9 @@ struct HistoryView: View {
                     }
                 }
             }
+            .chartPlotStyle { plotArea in
+                plotArea.padding(.top, 60)
+            }
             .chartOverlay { proxy in
                 GeometryReader { geometry in
                     Rectangle()
@@ -169,7 +172,7 @@ struct HistoryView: View {
                         }
                 }
             }
-            .frame(height: 200)
+            .frame(height: 260)
         }
     }
 
@@ -177,23 +180,24 @@ struct HistoryView: View {
         VStack(alignment: .leading, spacing: 3) {
             Text(shortDayLabel(summary.date))
                 .font(AppFonts.labelSmall.bold())
-                .foregroundStyle(.white)
+                .foregroundStyle(AppColors.textPrimary)
             ForEach(summary.sessions) { session in
                 HStack(spacing: 6) {
                     Text(session.exerciseTitle)
                         .font(AppFonts.labelSmall)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(AppColors.textPrimary)
                     Spacer(minLength: 8)
                     Text(durationLabel(session.durationSeconds))
                         .font(AppFonts.labelSmall)
-                        .foregroundStyle(.white.opacity(0.8))
+                        .foregroundStyle(AppColors.textSecondary)
                 }
             }
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
-        .background(AppColors.primary)
+        .background(AppColors.backgroundSecondary)
         .clipShape(RoundedRectangle(cornerRadius: 6))
+        .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 2)
     }
 
     private var emptyView: some View {
