@@ -121,15 +121,15 @@ struct HomeView: View {
                 .font(AppFonts.headlineLarge)
 
             Card {
-                Chart(Array(sessions.prefix(5).reversed())) { session in
+                Chart(Array(sessions)) { session in
                     LineMark(
                         x: .value("Date", session.completedAt),
-                        y: .value("Duration (min)", session.durationSeconds / 60)
+                        y: .value("Duration (min)", session.durationMinutes)
                     )
                     .foregroundStyle(AppColors.primary)
                     PointMark(
                         x: .value("Date", session.completedAt),
-                        y: .value("Duration (min)", session.durationSeconds / 60)
+                        y: .value("Duration (min)", session.durationMinutes)
                     )
                     .foregroundStyle(AppColors.primary)
                 }

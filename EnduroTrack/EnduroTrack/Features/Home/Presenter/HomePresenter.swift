@@ -24,7 +24,7 @@ final class HomePresenter: ObservableObject, HomePresenterProtocol {
             async let nextTask = interactor.fetchNextScheduledExercise()
             async let sessionsTask = interactor.fetchRecentSessions(limit: 5)
             let (next, sessions) = try await (nextTask, sessionsTask)
-            state = .loaded(nextExercise: next, recentSessions: sessions)
+            state = .loaded(nextExercise: next, recentSessions: sessions.reversed())
         } catch {
             state = .error(message: error.localizedDescription)
         }

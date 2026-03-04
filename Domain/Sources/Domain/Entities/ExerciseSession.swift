@@ -18,6 +18,10 @@ public struct ExerciseSession: Identifiable, Equatable, Sendable, Codable {
     public let completedAt: Date
     /// Actual duration the timer was active (in seconds).
     public let durationSeconds: Int
+    
+    public var durationMinutes: Int {
+        durationSeconds / 60
+    }
 
     public init(
         id: UUID = UUID(),
