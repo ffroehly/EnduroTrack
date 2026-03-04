@@ -9,6 +9,7 @@ import DesignSystem
 struct HistoryView: View {
 
     @StateObject private var presenter: HistoryPresenter
+    @State private var selectedSummary: DailySessionSummary?
 
     init(presenter: HistoryPresenter) {
         _presenter = StateObject(wrappedValue: presenter)
@@ -83,6 +84,7 @@ struct HistoryView: View {
     private func monthNavigationView(month: Date) -> some View {
         HStack {
             Button {
+                selectedSummary = nil
                 presenter.didTapPreviousMonth()
             } label: {
                 Image(systemName: "chevron.left")
@@ -93,6 +95,7 @@ struct HistoryView: View {
                 .font(AppFonts.headlineLarge)
             Spacer()
             Button {
+                selectedSummary = nil
                 presenter.didTapNextMonth()
             } label: {
                 Image(systemName: "chevron.right")
@@ -117,8 +120,13 @@ struct HistoryView: View {
                     x: .value("Day", summary.date, unit: .day),
                     y: .value("Duration", summary.totalDurationSeconds)
                 )
-                .foregroundStyle(AppColors.primary)
+                .foregroundStyle(summary.id == selectedSummary?.id ? AppColors.secondary : AppColors.primary)
                 .cornerRadius(4)
+                .annotation(position: .top, spacing: 4, overflowResolution: .init(x: .fit, y: .fit)) {
+                    if summary.id == selectedSummary?.id {
+                        dayAnnotation(for: summary)
+                    }
+                }
             }
             .chartXScale(domain: monthStart...monthEnd)
             .chartXAxis {
@@ -140,8 +148,52 @@ struct HistoryView: View {
                     }
                 }
             }
-            .frame(height: 180)
+            .chartOverlay { proxy in
+                GeometryReader { geometry in
+                    Rectangle()
+                        .fill(.clear)
+                        .contentShape(Rectangle())
+                        .onTapGesture { location in
+                            guard let plotFrame = proxy.plotFrame else { return }
+                            let x = location.x - geometry[plotFrame].origin.x
+                            guard let tappedDate: Date = proxy.value(atX: x) else { return }
+                            let nearest = summaries.min {
+                                abs($0.date.timeIntervalSince(tappedDate)) <
+                                abs($1.date.timeIntervalSince(tappedDate))
+                            }
+                            if selectedSummary?.id == nearest?.id {
+                                selectedSummary = nil
+                            } else {
+                                selectedSummary = nearest
+                            }
+                        }
+                }
+            }
+            .frame(height: 200)
         }
+    }
+
+    private func dayAnnotation(for summary: DailySessionSummary) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(shortDayLabel(summary.date))
+                .font(AppFonts.labelSmall.bold())
+                .foregroundStyle(.white)
+            ForEach(summary.sessions) { session in
+                HStack(spacing: 6) {
+                    Text(session.exerciseTitle)
+                        .font(AppFonts.labelSmall)
+                        .foregroundStyle(.white)
+                    Spacer(minLength: 8)
+                    Text(durationLabel(session.durationSeconds))
+                        .font(AppFonts.labelSmall)
+                        .foregroundStyle(.white.opacity(0.8))
+                }
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(AppColors.primary)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 
     private var emptyView: some View {
@@ -179,10 +231,24 @@ struct HistoryView: View {
         return f.string(from: date)
     }
 
-    private func dayLabel(_ date: Date) -> String {
+    private static let dayLabelFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "d"
-        return f.string(from: date)
+        return f
+    }()
+
+    private static let shortDayLabelFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "d MMM"
+        return f
+    }()
+
+    private func dayLabel(_ date: Date) -> String {
+        Self.dayLabelFormatter.string(from: date)
+    }
+
+    private func shortDayLabel(_ date: Date) -> String {
+        Self.shortDayLabelFormatter.string(from: date)
     }
 
     private func durationLabel(_ seconds: Int) -> String {

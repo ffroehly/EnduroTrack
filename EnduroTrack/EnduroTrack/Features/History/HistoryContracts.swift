@@ -29,6 +29,8 @@ struct DailySessionSummary: Identifiable, Equatable {
     let date: Date
     let totalDurationSeconds: Int
     let sessionCount: Int
+    /// The individual sessions that occurred on this day, sorted by time.
+    let sessions: [ExerciseSession]
 }
 
 enum HistoryViewState: Equatable {

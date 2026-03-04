@@ -70,7 +70,8 @@ final class HistoryPresenter: ObservableObject, HistoryPresenterProtocol {
                 id: date,
                 date: date,
                 totalDurationSeconds: sessions.reduce(0) { $0 + $1.durationSeconds },
-                sessionCount: sessions.count
+                sessionCount: sessions.count,
+                sessions: sessions.sorted { $0.completedAt < $1.completedAt }
             )
         }.sorted { $0.date < $1.date }
     }
