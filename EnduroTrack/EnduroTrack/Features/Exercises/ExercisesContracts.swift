@@ -26,6 +26,8 @@ protocol ExercisesPresenterProtocol: AnyObject {
     func didTapPauseTimer()
     func didTapResumeTimer()
     func didTapStopTimer()
+    func didTapBackStep()
+    func didTapNextStep()
 }
 
 // MARK: - Interactor Protocol

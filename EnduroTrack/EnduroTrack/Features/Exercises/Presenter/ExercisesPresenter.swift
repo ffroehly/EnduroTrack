@@ -20,6 +20,7 @@ final class ExercisesPresenter: ObservableObject, ExercisesPresenterProtocol {
     private var remainingSeconds: Int = 0
     private var elapsedSeconds: Int = 0
     private var timerStartTime: Date = Date()
+    private let backStepThresholdSeconds = 1
 
     init(interactor: ExercisesInteractorProtocol, router: ExercisesRouterProtocol) {
         self.interactor = interactor
@@ -136,6 +137,29 @@ final class ExercisesPresenter: ObservableObject, ExercisesPresenterProtocol {
         }
     }
 
+    func didTapBackStep() {
+        guard let exercise = currentExercise else { return }
+        countdownTask?.cancel()
+        countdownTask = nil
+        let duration = phaseDuration(for: currentPhase, exercise: exercise)
+        let secondsElapsedInPhase = duration - remainingSeconds
+        if secondsElapsedInPhase >= backStepThresholdSeconds {
+            startPhase(currentPhase, exercise: exercise)
+        } else {
+            let prev = previousPhase(for: currentPhase, exercise: exercise)
+            startPhase(prev ?? currentPhase, exercise: exercise)
+        }
+    }
+
+    func didTapNextStep() {
+        guard let exercise = currentExercise else { return }
+        countdownTask?.cancel()
+        countdownTask = nil
+        Task {
+            await advancePhase(exercise: exercise)
+        }
+    }
+
     // MARK: - Timer Logic
 
     private func startPhase(_ phase: TimerPhase, exercise: Exercise) {
@@ -214,5 +238,31 @@ final class ExercisesPresenter: ObservableObject, ExercisesPresenterProtocol {
         )
         _ = try? await interactor.saveSession(session)
         state = .timerFinished(exercise: exercise, durationSeconds: duration)
+    }
+
+    private func phaseDuration(for phase: TimerPhase, exercise: Exercise) -> Int {
+        switch phase {
+        case .warmup:   return exercise.warmupSeconds
+        case .active:   return exercise.activeSeconds
+        case .rest:     return exercise.restSeconds
+        case .recovery: return exercise.recoverySeconds ?? 0
+        }
+    }
+
+    private func previousPhase(for phase: TimerPhase, exercise: Exercise) -> TimerPhase? {
+        switch phase {
+        case .warmup:
+            return nil
+        case .active(let rep):
+            if rep == 1 {
+                return exercise.warmupSeconds > 0 ? .warmup : nil
+            } else {
+                return exercise.restSeconds > 0 ? .rest(rep: rep - 1) : .active(rep: rep - 1)
+            }
+        case .rest(let rep):
+            return .active(rep: rep)
+        case .recovery:
+            return exercise.restSeconds > 0 ? .rest(rep: exercise.repetitions) : .active(rep: exercise.repetitions)
+        }
     }
 }
