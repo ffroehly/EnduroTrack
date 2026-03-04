@@ -134,7 +134,7 @@ struct HomeView: View {
                     )
                     .foregroundStyle(session.id == selectedSession?.id ? AppColors.secondary : AppColors.primary)
                     .symbolSize(session.id == selectedSession?.id ? 120 : 60)
-                    .annotation(position: .automatic, spacing: 6, overflowResolution: .init(x: .fit, y: .fit)) {
+                    .annotation(position: .automatic, spacing: 12, overflowResolution: .init(x: .fit, y: .fit)) {
                         if session.id == selectedSession?.id {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(session.exerciseTitle)
