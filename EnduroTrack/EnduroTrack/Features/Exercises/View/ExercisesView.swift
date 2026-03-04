@@ -102,7 +102,9 @@ struct ExercisesView: View {
                 isPaused: false,
                 onPause: { presenter.didTapPauseTimer() },
                 onResume: { presenter.didTapResumeTimer() },
-                onStop: { presenter.didTapStopTimer() }
+                onStop: { presenter.didTapStopTimer() },
+                onBack: { presenter.didTapPreviousStep() },
+                onNext: { presenter.didTapNextStep() }
             )
 
         case .timerPaused(let exercise, let phase, let remaining, let elapsed):
@@ -114,7 +116,9 @@ struct ExercisesView: View {
                 isPaused: true,
                 onPause: { presenter.didTapPauseTimer() },
                 onResume: { presenter.didTapResumeTimer() },
-                onStop: { presenter.didTapStopTimer() }
+                onStop: { presenter.didTapStopTimer() },
+                onBack: { presenter.didTapPreviousStep() },
+                onNext: { presenter.didTapNextStep() }
             )
 
         case .timerFinished(let exercise, let duration):
@@ -340,6 +344,8 @@ struct TimerRunView: View {
     let onPause: () -> Void
     let onResume: () -> Void
     let onStop: () -> Void
+    let onBack: () -> Void
+    let onNext: () -> Void
 
     var body: some View {
         VStack(spacing: 32) {
@@ -356,6 +362,12 @@ struct TimerRunView: View {
                 .monospacedDigit()
 
             progressText
+
+            HStack(spacing: 16) {
+                PrimaryButton(title: "← Back", style: .outlined, action: onBack)
+                PrimaryButton(title: "Next →", style: .outlined, action: onNext)
+            }
+            .padding(.horizontal)
 
             HStack(spacing: 16) {
                 if isPaused {
