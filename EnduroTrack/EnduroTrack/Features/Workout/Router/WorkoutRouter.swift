@@ -2,6 +2,7 @@
 // EnduroTrack › Features › Workout (Exercises)
 
 import SwiftUI
+import Combine
 import Domain
 
 @MainActor
