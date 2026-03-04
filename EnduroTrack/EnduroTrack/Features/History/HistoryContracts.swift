@@ -27,7 +27,7 @@ protocol HistoryRouterProtocol: AnyObject {}
 struct DailySessionSummary: Identifiable, Equatable {
     let id: Date
     let date: Date
-    let totalDurationMinutes: Int
+    let totalDurationSeconds: Int
     let sessionCount: Int
 }
 

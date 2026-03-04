@@ -69,7 +69,7 @@ final class HistoryPresenter: ObservableObject, HistoryPresenterProtocol {
             DailySessionSummary(
                 id: date,
                 date: date,
-                totalDurationMinutes: sessions.reduce(0) { $0 + $1.durationSeconds } / 60,
+                totalDurationSeconds: sessions.reduce(0) { $0 + $1.durationSeconds },
                 sessionCount: sessions.count
             )
         }.sorted { $0.date < $1.date }

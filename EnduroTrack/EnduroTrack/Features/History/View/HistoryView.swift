@@ -102,7 +102,12 @@ struct HistoryView: View {
     }
 
     private func monthlyChart(summaries: [DailySessionSummary], month: Date) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        let calendar = Calendar.current
+        let interval = calendar.dateInterval(of: .month, for: month)
+        let monthStart = interval?.start ?? month
+        let monthEnd = interval?.end ?? month
+
+        return VStack(alignment: .leading, spacing: 8) {
             Text("Sessions this month")
                 .font(AppFonts.bodyMedium)
                 .foregroundStyle(AppColors.textSecondary)
@@ -110,11 +115,12 @@ struct HistoryView: View {
             Chart(summaries) { summary in
                 BarMark(
                     x: .value("Day", summary.date, unit: .day),
-                    y: .value("Duration (min)", summary.totalDurationMinutes)
+                    y: .value("Duration", summary.totalDurationSeconds)
                 )
                 .foregroundStyle(AppColors.primary)
                 .cornerRadius(4)
             }
+            .chartXScale(domain: monthStart...monthEnd)
             .chartXAxis {
                 AxisMarks(values: .stride(by: .day, count: 7)) { value in
                     if let date = value.as(Date.self) {
@@ -129,7 +135,7 @@ struct HistoryView: View {
             .chartYAxis {
                 AxisMarks { value in
                     if let v = value.as(Int.self) {
-                        AxisValueLabel { Text("\(v)m") }
+                        AxisValueLabel { Text(durationLabel(v)) }
                         AxisGridLine()
                     }
                 }
@@ -177,6 +183,13 @@ struct HistoryView: View {
         let f = DateFormatter()
         f.dateFormat = "d"
         return f.string(from: date)
+    }
+
+    private func durationLabel(_ seconds: Int) -> String {
+        if seconds < 60 { return "\(seconds)s" }
+        let m = seconds / 60
+        let s = seconds % 60
+        return s == 0 ? "\(m)m" : "\(m)m \(s)s"
     }
 }
 
