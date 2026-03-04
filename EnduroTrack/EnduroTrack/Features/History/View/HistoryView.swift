@@ -122,12 +122,6 @@ struct HistoryView: View {
                 )
                 .foregroundStyle(summary.id == selectedSummary?.id ? AppColors.secondary : AppColors.primary)
                 .cornerRadius(4)
-                .zIndex(summary.id == selectedSummary?.id ? 1 : 0)
-                .annotation(position: .top, spacing: 4, overflowResolution: .init(x: .fit, y: .fit)) {
-                    if summary.id == selectedSummary?.id {
-                        dayAnnotation(for: summary)
-                    }
-                }
             }
             .chartXScale(domain: monthStart...monthEnd)
             .chartXAxis {
@@ -168,6 +162,20 @@ struct HistoryView: View {
                                 selectedSummary = nearest
                             }
                         }
+
+                    if let selected = selectedSummary,
+                       let plotFrame = proxy.plotFrame,
+                       let xPos: CGFloat = proxy.position(forX: selected.date) {
+                        let plotRect = geometry[plotFrame]
+                        let annotationHalfWidth: CGFloat = 80
+                        let screenX = plotRect.minX + xPos
+                        let clampedX = max(plotRect.minX + annotationHalfWidth,
+                                           min(screenX, plotRect.maxX - annotationHalfWidth))
+                        dayAnnotation(for: selected)
+                            .fixedSize()
+                            .position(x: clampedX, y: plotRect.minY + 40)
+                            .allowsHitTesting(false)
+                    }
                 }
             }
             .frame(height: 200)
