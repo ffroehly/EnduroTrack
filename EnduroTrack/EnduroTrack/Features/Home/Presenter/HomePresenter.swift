@@ -22,7 +22,7 @@ final class HomePresenter: ObservableObject, HomePresenterProtocol {
         state = .loading
         do {
             async let nextTask = interactor.fetchNextScheduledExercise()
-            async let sessionsTask = interactor.fetchRecentSessions(limit: 5)
+            async let sessionsTask = interactor.fetchAllSessions()
             let (next, sessions) = try await (nextTask, sessionsTask)
             state = .loaded(nextExercise: next, recentSessions: sessions.reversed())
         } catch {

@@ -19,7 +19,7 @@ protocol HomePresenterProtocol: AnyObject {
 
 protocol HomeInteractorProtocol: AnyObject {
     func fetchNextScheduledExercise() async throws -> NextExerciseInfo?
-    func fetchRecentSessions(limit: Int) async throws -> [ExerciseSession]
+    func fetchAllSessions() async throws -> [ExerciseSession]
 }
 
 @MainActor

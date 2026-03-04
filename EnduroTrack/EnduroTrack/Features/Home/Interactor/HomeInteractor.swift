@@ -68,8 +68,8 @@ final class HomeInteractor: HomeInteractorProtocol {
         )
     }
 
-    func fetchRecentSessions(limit: Int) async throws -> [ExerciseSession] {
+    func fetchAllSessions() async throws -> [ExerciseSession] {
         let all = try await fetchSessionsUseCase.fetchAll()
-        return Array(all.prefix(limit))
+        return all
     }
 }

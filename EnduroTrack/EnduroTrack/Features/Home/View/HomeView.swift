@@ -11,6 +11,7 @@ struct HomeView: View {
     @StateObject private var presenter: HomePresenter
     @AppStorage("colorScheme") private var colorSchemePreference: String = "system"
     @State private var showingSettings = false
+    @State private var selectedSession: ExerciseSession?
 
     init(presenter: HomePresenter) {
         _presenter = StateObject(wrappedValue: presenter)
@@ -120,18 +121,35 @@ struct HomeView: View {
             Text("Recent Sessions")
                 .font(AppFonts.headlineLarge)
 
+            if let selected = selectedSession {
+                Card {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(selected.exerciseTitle)
+                            .font(AppFonts.headlineMedium)
+                            .foregroundStyle(AppColors.textPrimary)
+                        Text(longDateLabel(selected.completedAt))
+                            .font(AppFonts.bodyMedium)
+                            .foregroundStyle(AppColors.textSecondary)
+                        Text(durationLabel(selected.durationSeconds))
+                            .font(AppFonts.bodyMedium)
+                            .foregroundStyle(AppColors.textSecondary)
+                    }
+                }
+            }
+
             Card {
                 Chart(Array(sessions)) { session in
                     LineMark(
                         x: .value("Date", session.completedAt),
-                        y: .value("Duration (min)", session.durationMinutes)
+                        y: .value("Duration (s)", session.durationSeconds)
                     )
                     .foregroundStyle(AppColors.primary)
                     PointMark(
                         x: .value("Date", session.completedAt),
-                        y: .value("Duration (min)", session.durationMinutes)
+                        y: .value("Duration (s)", session.durationSeconds)
                     )
-                    .foregroundStyle(AppColors.primary)
+                    .foregroundStyle(session.id == selectedSession?.id ? AppColors.secondary : AppColors.primary)
+                    .symbolSize(session.id == selectedSession?.id ? 120 : 60)
                 }
                 .chartXAxis {
                     AxisMarks { value in
@@ -147,9 +165,30 @@ struct HomeView: View {
                 .chartYAxis {
                     AxisMarks { value in
                         if let v = value.as(Int.self) {
-                            AxisValueLabel { Text("\(v)m") }
+                            AxisValueLabel { Text(durationLabel(v)) }
                             AxisGridLine()
                         }
+                    }
+                }
+                .chartOverlay { proxy in
+                    GeometryReader { geometry in
+                        Rectangle()
+                            .fill(.clear)
+                            .contentShape(Rectangle())
+                            .onTapGesture { location in
+                                guard !sessions.isEmpty, let plotFrame = proxy.plotFrame else { return }
+                                let x = location.x - geometry[plotFrame].origin.x
+                                guard let tappedDate: Date = proxy.value(atX: x) else { return }
+                                let nearest = sessions.min {
+                                    abs($0.completedAt.timeIntervalSince(tappedDate)) <
+                                    abs($1.completedAt.timeIntervalSince(tappedDate))
+                                }
+                                if selectedSession?.id == nearest?.id {
+                                    selectedSession = nil
+                                } else {
+                                    selectedSession = nearest
+                                }
+                            }
                     }
                 }
                 .frame(height: 160)
@@ -161,6 +200,22 @@ struct HomeView: View {
         let f = DateFormatter()
         f.dateFormat = "d MMM"
         return f.string(from: date)
+    }
+
+    private func longDateLabel(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.timeStyle = .short
+        return f.string(from: date)
+    }
+
+    private func durationLabel(_ seconds: Int) -> String {
+        if seconds < 60 {
+            return "\(seconds)s"
+        }
+        let m = seconds / 60
+        let s = seconds % 60
+        return s == 0 ? "\(m)m" : "\(m)m \(s)s"
     }
 }
 
