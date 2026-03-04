@@ -24,6 +24,9 @@ struct HistoryView: View {
         .task {
             await presenter.viewDidAppear()
         }
+        .onDisappear {
+            selectedSummary = nil
+        }
     }
 
     @ViewBuilder
