@@ -372,10 +372,10 @@ struct TimerRunView: View {
             HStack(spacing: 16) {
                 if isPaused {
                     PrimaryButton(title: "Resume", action: onResume)
+                    PrimaryButton(title: "Stop", style: .outlined, action: onStop)
                 } else {
                     PrimaryButton(title: "Pause", style: .outlined, action: onPause)
                 }
-                PrimaryButton(title: "Stop", style: .outlined, action: onStop)
             }
             .padding(.horizontal)
         }
