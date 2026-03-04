@@ -134,13 +134,13 @@ struct HomeView: View {
                     )
                     .foregroundStyle(session.id == selectedSession?.id ? AppColors.secondary : AppColors.primary)
                     .symbolSize(session.id == selectedSession?.id ? 120 : 60)
-                    .annotation(position: .automatic, spacing: 12, overflowResolution: .init(x: .fit, y: .fit)) {
+                    .annotation(position: .automatic, spacing: 6, overflowResolution: .init(x: .fit, y: .fit)) {
                         if session.id == selectedSession?.id {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(session.exerciseTitle)
                                     .font(AppFonts.labelSmall)
                                     .foregroundStyle(.white)
-                                Text(shortDateLabel(session.completedAt))
+                                Text(shortDateAndTimeLabel(session.completedAt))
                                     .font(AppFonts.labelSmall)
                                     .foregroundStyle(.white.opacity(0.8))
                                 Text(durationLabel(session.durationSeconds))
@@ -151,7 +151,7 @@ struct HomeView: View {
                             .padding(.vertical, 4)
                             .background(AppColors.primary)
                             .clipShape(RoundedRectangle(cornerRadius: 6))
-                            .accessibilityLabel("\(session.exerciseTitle), \(shortDateLabel(session.completedAt)), \(durationLabel(session.durationSeconds))")
+                            .accessibilityLabel("\(session.exerciseTitle), \(shortDateAndTimeLabel(session.completedAt)), \(durationLabel(session.durationSeconds))")
                         }
                     }
                 }
@@ -205,9 +205,19 @@ struct HomeView: View {
         f.dateFormat = "d/MM"
         return f
     }()
+    
+    private static let shortDateAndTimeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "d/MM - HH:mm"
+        return f
+    }()
 
     private func shortDateLabel(_ date: Date) -> String {
         Self.shortDateFormatter.string(from: date)
+    }
+    
+    private func shortDateAndTimeLabel(_ date: Date) -> String {
+        Self.shortDateAndTimeFormatter.string(from: date)
     }
 
     private func durationLabel(_ seconds: Int) -> String {
