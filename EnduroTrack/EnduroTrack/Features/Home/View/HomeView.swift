@@ -121,22 +121,6 @@ struct HomeView: View {
             Text("Recent Sessions")
                 .font(AppFonts.headlineLarge)
 
-            if let selected = selectedSession {
-                Card {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(selected.exerciseTitle)
-                            .font(AppFonts.headlineMedium)
-                            .foregroundStyle(AppColors.textPrimary)
-                        Text(longDateLabel(selected.completedAt))
-                            .font(AppFonts.bodyMedium)
-                            .foregroundStyle(AppColors.textSecondary)
-                        Text(durationLabel(selected.durationSeconds))
-                            .font(AppFonts.bodyMedium)
-                            .foregroundStyle(AppColors.textSecondary)
-                    }
-                }
-            }
-
             Card {
                 Chart(Array(sessions)) { session in
                     LineMark(
@@ -150,6 +134,26 @@ struct HomeView: View {
                     )
                     .foregroundStyle(session.id == selectedSession?.id ? AppColors.secondary : AppColors.primary)
                     .symbolSize(session.id == selectedSession?.id ? 120 : 60)
+                    .annotation(position: .top, spacing: 6, overflowResolution: .init(x: .fit, y: .disabled)) {
+                        if session.id == selectedSession?.id {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(session.exerciseTitle)
+                                    .font(AppFonts.labelSmall)
+                                    .foregroundStyle(AppColors.textPrimary)
+                                Text(shortDateLabel(session.completedAt))
+                                    .font(AppFonts.labelSmall)
+                                    .foregroundStyle(AppColors.textSecondary)
+                                Text(durationLabel(session.durationSeconds))
+                                    .font(AppFonts.labelSmall)
+                                    .foregroundStyle(AppColors.textSecondary)
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(AppColors.backgroundSecondary)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .accessibilityLabel("\(session.exerciseTitle), \(shortDateLabel(session.completedAt)), \(durationLabel(session.durationSeconds))")
+                        }
+                    }
                 }
                 .chartXAxis {
                     AxisMarks { value in
@@ -191,22 +195,19 @@ struct HomeView: View {
                             }
                     }
                 }
-                .frame(height: 160)
+                .frame(height: 200)
             }
         }
     }
 
-    private func shortDateLabel(_ date: Date) -> String {
+    private static let shortDateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "d MMM"
-        return f.string(from: date)
-    }
+        return f
+    }()
 
-    private func longDateLabel(_ date: Date) -> String {
-        let f = DateFormatter()
-        f.dateStyle = .medium
-        f.timeStyle = .short
-        return f.string(from: date)
+    private func shortDateLabel(_ date: Date) -> String {
+        Self.shortDateFormatter.string(from: date)
     }
 
     private func durationLabel(_ seconds: Int) -> String {
