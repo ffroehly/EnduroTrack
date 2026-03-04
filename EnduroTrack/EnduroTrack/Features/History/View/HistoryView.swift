@@ -122,6 +122,7 @@ struct HistoryView: View {
                 )
                 .foregroundStyle(summary.id == selectedSummary?.id ? AppColors.secondary : AppColors.primary)
                 .cornerRadius(4)
+                .zIndex(summary.id == selectedSummary?.id ? 1 : 0)
                 .annotation(position: .top, spacing: 4, overflowResolution: .init(x: .fit, y: .fit)) {
                     if summary.id == selectedSummary?.id {
                         dayAnnotation(for: summary)
@@ -148,9 +149,6 @@ struct HistoryView: View {
                     }
                 }
             }
-            .chartPlotStyle { plotArea in
-                plotArea.padding(.top, 60)
-            }
             .chartOverlay { proxy in
                 GeometryReader { geometry in
                     Rectangle()
@@ -172,7 +170,7 @@ struct HistoryView: View {
                         }
                 }
             }
-            .frame(height: 260)
+            .frame(height: 200)
         }
     }
 
