@@ -45,7 +45,7 @@ When asked to add a new feature (e.g. "Nutrition"), follow this checklist:
 7. **SharedModels** — Add any cross-feature shared types if needed.
 8. **ContentView.swift** — Add new tab or navigation entry point.
 9. **ARCHITECTURE.md** — Update the Feature List section.
-10. **Tests** — Add unit tests for Interactor and Presenter.
+10. **Tests** — Add or update unit tests for every new or modified Interactor and Presenter. Each test must use mock dependencies injected via protocols (no concrete types). Tests live in `Domain/Tests/DomainTests/` for Domain-only logic and in `EnduroTrack/EnduroTrackTests/` for VIPER components.
 
 ---
 
@@ -137,3 +137,22 @@ Update `agent.md` whenever:
 - A new convention is established
 - The dependency graph changes
 - New agent commands or shortcuts are needed
+
+---
+
+## Testing Conventions
+
+Every feature must include unit tests. Tests must respect SOLID principles:
+
+| Principle | Test rule |
+|---|---|
+| Single Responsibility | One test class per component (one for Interactor, one for Presenter). |
+| Open/Closed | Mocks implement protocols; never modify concrete classes to make them testable. |
+| Liskov Substitution | Every mock must fully satisfy its protocol contract. |
+| Interface Segregation | Create one mock per protocol; never combine multiple protocols in one mock. |
+| Dependency Inversion | Inject mocks via protocols in test `setUp`; never instantiate concrete dependencies. |
+
+When adding or modifying a feature:
+- Add or update tests in `Domain/Tests/DomainTests/` for Domain entities and value objects.
+- Add or update tests in `EnduroTrack/EnduroTrackTests/` for VIPER Interactors and Presenters.
+- Mocks must be placed in `EnduroTrack/EnduroTrackTests/Mocks/`.
