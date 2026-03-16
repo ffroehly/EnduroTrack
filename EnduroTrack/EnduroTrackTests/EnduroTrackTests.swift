@@ -42,17 +42,17 @@ final class ExerciseSoundPlayerTests: XCTestCase {
     private let player = ExerciseSoundPlayer()
 
     func testWarmupSoundID() {
-        XCTAssertEqual(player.soundID(for: .warmup), 1052)
+        XCTAssertEqual(player.soundID(for: .warmup), 1020)
     }
 
     func testActiveSoundID() {
-        XCTAssertEqual(player.soundID(for: .active(rep: 1)), 1016)
-        XCTAssertEqual(player.soundID(for: .active(rep: 3)), 1016)
+        XCTAssertEqual(player.soundID(for: .active(rep: 1)), 1036)
+        XCTAssertEqual(player.soundID(for: .active(rep: 3)), 1036)
     }
 
     func testRestSoundID() {
-        XCTAssertEqual(player.soundID(for: .rest(rep: 1)), 1054)
-        XCTAssertEqual(player.soundID(for: .rest(rep: 5)), 1054)
+        XCTAssertEqual(player.soundID(for: .rest(rep: 1)), 1024)
+        XCTAssertEqual(player.soundID(for: .rest(rep: 5)), 1024)
     }
 
     func testRecoverySoundID() {
