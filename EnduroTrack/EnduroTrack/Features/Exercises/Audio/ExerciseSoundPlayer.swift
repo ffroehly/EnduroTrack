@@ -40,13 +40,13 @@ struct ExerciseSoundPlayer {
     func soundID(for phase: TimerPhase) -> SystemSoundID {
         switch phase {
         case .warmup:
-            return 1020  // anticipate – rising sequence, signals "something is building up"
+            return 1060  // anticipate – rising sequence, signals "something is building up"
         case .active:
-            return 1036  // update – clean, sharp alert that signals "go now"
+            return 1054  // update – clean, sharp alert that signals "go now"
         case .rest:
-            return 1024  // descent – falling tones that signal "slow down / recover"
+            return 1271  // descent – falling tones that signal "slow down / recover"
         case .recovery:
-            return 1021  // bloom – soft, gentle tone for light recovery
+            return 1115  // bloom – soft, gentle tone for light recovery
         }
     }
 }
