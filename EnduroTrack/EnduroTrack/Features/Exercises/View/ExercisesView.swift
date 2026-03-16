@@ -395,8 +395,8 @@ struct TimerRunView: View {
     private var phaseColor: Color {
         switch phase {
         case .warmup:   return AppColors.warning
-        case .active:   return AppColors.primary
-        case .rest:     return AppColors.success
+        case .active:   return AppColors.success
+        case .rest:     return AppColors.primary
         case .recovery: return AppColors.textSecondary
         }
     }
