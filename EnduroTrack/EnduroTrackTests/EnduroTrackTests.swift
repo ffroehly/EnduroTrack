@@ -34,3 +34,38 @@ final class EnduroTrackTests: XCTestCase {
     }
 
 }
+
+// MARK: - ExerciseSoundPlayer Tests
+
+final class ExerciseSoundPlayerTests: XCTestCase {
+
+    private let player = ExerciseSoundPlayer()
+
+    func testWarmupSoundID() {
+        XCTAssertEqual(player.soundID(for: .warmup), 1020)
+    }
+
+    func testActiveSoundID() {
+        XCTAssertEqual(player.soundID(for: .active(rep: 1)), 1036)
+        XCTAssertEqual(player.soundID(for: .active(rep: 3)), 1036)
+    }
+
+    func testRestSoundID() {
+        XCTAssertEqual(player.soundID(for: .rest(rep: 1)), 1024)
+        XCTAssertEqual(player.soundID(for: .rest(rep: 5)), 1024)
+    }
+
+    func testRecoverySoundID() {
+        XCTAssertEqual(player.soundID(for: .recovery), 1021)
+    }
+
+    func testAllPhasesReturnDistinctSoundIDs() {
+        let ids = [
+            player.soundID(for: .warmup),
+            player.soundID(for: .active(rep: 1)),
+            player.soundID(for: .rest(rep: 1)),
+            player.soundID(for: .recovery)
+        ]
+        XCTAssertEqual(Set(ids).count, ids.count, "Each phase should have a unique sound ID")
+    }
+}

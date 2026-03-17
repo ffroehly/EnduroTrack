@@ -2,6 +2,7 @@
 // EnduroTrack › Features › Exercises
 
 import Foundation
+import AudioToolbox
 import Domain
 import Combine
 
@@ -12,6 +13,7 @@ final class ExercisesPresenter: ObservableObject, ExercisesPresenterProtocol {
 
     private let interactor: ExercisesInteractorProtocol
     private let router: ExercisesRouterProtocol
+    private let soundPlayer = ExerciseSoundPlayer()
 
     // Timer state
     private var countdownTask: Task<Void, Never>?
@@ -172,6 +174,7 @@ final class ExercisesPresenter: ObservableObject, ExercisesPresenterProtocol {
     private func startPhase(_ phase: TimerPhase, exercise: Exercise) {
         currentPhase = phase
         phaseElapsedSeconds = 0
+        soundPlayer.play(for: phase)
         switch phase {
         case .warmup:
             remainingSeconds = exercise.warmupSeconds
@@ -269,6 +272,7 @@ final class ExercisesPresenter: ObservableObject, ExercisesPresenterProtocol {
             durationSeconds: duration
         )
         _ = try? await interactor.saveSession(session)
+        soundPlayer.playFinished()
         state = .timerFinished(exercise: exercise, durationSeconds: duration)
     }
 }
